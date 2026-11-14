@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÇETİN2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- GİRİŞ EKRANI -->
+<div id="girisEkrani">
+  <input id="kullaniciAdi" type="text" maxlength="16"
+    placeholder="" autocomplete="username" aria-label="Kullanıcı adı">
+  <input id="girisParola" type="password" maxlength="64"
+    placeholder="" autocomplete="current-password" aria-label="Parola">
+  <button id="parolaGosterButonu" type="button" aria-label="Parolayı göster"
+    onclick="parolaGoster('girisParola', this)">◉</button>
+  <button id="oyunaBaslaButonu" type="button"
+    aria-label="Oyuna başla" onclick="oyunaBasla()"></button>
+  <button id="kayitOlButonu" type="button" aria-label="Kayıt ol"
+    onclick="kayitEkraniniAc()"><img src="kayit-butonu.png" alt="Kayıt Ol"></button>
+</div>
+
+<div id="kayitPaneli" role="dialog" aria-modal="true" aria-label="ÇETİN2 kayıt paneli">
+  <div id="kayitPanelGovde">
+    <button id="kayitKapat" type="button" onclick="kayitPaneliniKapat()" aria-label="Kapat">×</button>
+    <input id="kayitKullaniciAdi" type="text" maxlength="16" autocomplete="username" aria-label="Kullanıcı adı">
+    <input id="kayitParola" type="password" maxlength="64" autocomplete="new-password" aria-label="Parola">
+    <button class="kayitGoz" id="kayitParolaGoz" type="button" onclick="parolaGoster('kayitParola',this)" aria-label="Parolayı göster">◉</button>
+    <input id="kayitParolaTekrar" type="password" maxlength="64" autocomplete="new-password" aria-label="Parola tekrar">
+    <button class="kayitGoz" id="kayitTekrarGoz" type="button" onclick="parolaGoster('kayitParolaTekrar',this)" aria-label="Parolayı göster">◉</button>
+    <input id="kayitEposta" type="email" maxlength="100" autocomplete="email" aria-label="E-posta">
+    <input id="robotOnay" type="checkbox" aria-label="Robot değilim">
+    <button id="kaydiTamamla" type="button" onclick="kayitOl()" aria-label="Kaydı tamamla"></button>
+  </div>
+</div>
+
+<!-- KARAKTER SEÇİM EKRANI -->
+<div id="karakterEkrani">
+  <select id="sinif" aria-label="Karakter sınıfı">
+    <option value="Savaşçı">Savaşçı</option>
+    <option value="Sura">Sura</option>
+    <option value="Şaman">Şaman</option>
+    <option value="Ninja">Ninja</option>
+  </select>
+
+  <div id="secimMesaji"></div>
+
+  <!-- Görseldeki karakter alanlarının üzerine yerleştirilmiş seçim düğmeleri -->
+  <button class="karakterSecimButonu" style="left:0%"
+    type="button" aria-label="Savaşçı seç"
+    onclick="karakterSec('Savaşçı')"></button>
+  <button class="karakterSecimButonu" style="left:25%"
+    type="button" aria-label="Sura seç"
+    onclick="karakterSec('Sura')"></button>
+  <button class="karakterSecimButonu" style="left:50%"
+    type="button" aria-label="Şaman seç"
+    onclick="karakterSec('Şaman')"></button>
+  <button class="karakterSecimButonu" style="left:75%"
+    type="button" aria-label="Ninja seç"
+    onclick="karakterSec('Ninja')"></button>
+</div>
+
+<!-- YENİ OYUN EKRANI -->
+<div id="gameScreen">
+
+  <div id="scene"></div>
+
+  <!-- ŞEHİRDEKİ MEVCUT SATICI GÖRSELLERİ İÇİN GÖRÜNMEZ DOKUNMA ALANLARI -->
+  <div id="cityShopHotspots">
+    <button class="cityNpcHit demirciHit" onclick="dukkanAc('demirci')" aria-label="Demirci"></button>
+    <button class="cityNpcHit silahHit" onclick="dukkanAc('silah')" aria-label="Silah Satıcısı"></button>
+    <button class="cityNpcHit zirhHit" onclick="dukkanAc('zirh')" aria-label="Zırh Satıcısı"></button>
+    <button class="cityNpcHit pazarHit" onclick="dukkanAc('pazar')" aria-label="Pazar"></button>
+  </div>
+
+  <!-- KÖY BİLGESİ: ŞEHİRDE TIKLANABİLİR NPC -->
+  <!-- Şehir haritasındaki mevcut Köy Bilgesi karakterinin üzerine yerleştirilen şeffaf dokunma alanı -->
+  <button id="villageSage" type="button" onclick="koyBilgesiyleKonus()" aria-label="Köy Bilgesi ile konuş"></button>
+
+  <!-- ŞEHİRDEN CANAVAR HARİTASINA GEÇİŞ -->
+<button id="mapGate"
+  onclick="haritaDegistir('canavar')">
+  Canavar Haritasına Gir
+</button>
+
+<!-- CANAVAR HARİTASINDAN ŞEHRE DÖNÜŞ -->
+<button id="cityReturn"
+  onclick="haritaDegistir('sehir')">
+  Şehre Dön
+</button>
+  
+<!-- CANAVARLAR -->
+<div id="monsterLayer">
+
+  <div class="monster" id="kopek1">
+    <div class="monsterName">Yabani Köpek</div>
+    <div class="monsterHp">
+      <div id="kopekCan1"></div>
+    </div>
+    <button class="monsterImage" onclick="canavaraSaldir(1)">
+  <img src="yabani-kopek.png" class="kopekGorsel">
+    </button>
+  </div>
+
+  <div class="monster" id="kopek2">
+    <div class="monsterName">Yabani Köpek</div>
+    <div class="monsterHp">
+      <div id="kopekCan2"></div>
+    </div>
+    <button class="monsterImage" onclick="canavaraSaldir(2)">
+  <img src="yabani-kopek.png" class="kopekGorsel">
+    </button>
+  </div>
+
+  <div class="monster" id="kopek3">
+    <div class="monsterName">Yabani Köpek</div>
+    <div class="monsterHp">
+      <div id="kopekCan3"></div>
+    </div>
+    <button class="monsterImage" onclick="canavaraSaldir(3)">
+  <img src="yabani-kopek.png" class="kopekGorsel">
+    </button>
+  </div>
+
+  <!-- 10 YABANİ KÖPEKTE BİR ORTAYA ÇIKAN ÇETİN TAŞI -->
+  <div id="cetinTasi" style="display:none">
+    <div class="cetinTasiAd">ÇETİN TAŞI</div>
+    <div class="cetinTasiHp"><div id="cetinTasiCanCubugu"></div></div>
+    <button type="button" class="cetinTasiVurus" onclick="cetinTasiSaldir()" aria-label="Çetin Taşına saldır">
+      <img src="cetin-tasi.png" alt="Çetin Taşı">
+    </button>
+  </div>
+
+</div>
+
+
+  <!-- ÜST BİLGİLER -->
+  <div id="topHud">
+    <div id="playerStatus">
+      <div id="hudLevel">1</div>
+      <div id="playerName"><span id="hudPlayerName">Oyuncu</span></div>
+      <div class="meter meterCan"><div id="hpFill" class="meterFill"></div><div id="hpLabel" class="meterLabel">1000 / 1000 CAN</div></div>
+      <div class="meter meterMana"><div id="mpFill" class="meterFill"></div><div id="mpLabel" class="meterLabel">400 / 400 MANA</div></div>
+      <div class="meter meterXp"><div id="xpFill" class="meterFill"></div><div id="xpLabel" class="meterLabel">0 / 1000 XP</div></div>
+    </div>
+    <div id="yangBox"><span id="yangValue">500 Yang</span></div>
+  </div>
+
+  <!-- OYUNCU KARAKTERİ -->
+<img id="playerAvatar" src="Sura.png" alt="Oyuncu karakteri">
+
+<div id="avatarFallback">🧙</div>
+
+  <!-- İKSİRLER -->
+  
+<div id="potions">
+
+  <button class="potionBtn kirmiziIksirButon" onclick="iksirKullan('kirmizi_iksir')" aria-label="Kırmızı iksir kullan">
+    <img src="kirmizi-iksir.png" alt="">
+    <span class="potionCount" id="kirmiziIksirAdet">0</span>
+  </button>
+
+  <button class="potionBtn maviIksirButon" onclick="iksirKullan('mavi_iksir')" aria-label="Mavi iksir kullan">
+    <img src="mavi-iksir.png" alt="">
+    <span class="potionCount" id="maviIksirAdet">0</span>
+  </button>
+
+</div>
+
+
+  <!-- ALT KONTROLLER -->
+  <div id="bottomHud">
+
+    <div id="quickSkillInfo" aria-live="polite"></div>
+
+    <div id="actionButtons">
+      <div id="quickSkillBar" aria-label="Karakter becerileri"></div>
+      <button class="actionBtn" id="attackBtn"
+        onclick="oyuncuNormalSaldiri()" aria-label="Saldır" title="Normal saldırı"></button>
+    </div>
+
+    <!-- SOHBET / EŞYA BİLDİRİMLERİ -->
+    <div id="lootChat" aria-live="polite" aria-label="Sohbet ve eşya bildirimleri">
+      <div class="lootChatLine bilgi">[Sistem] ÇETİN2'ye hoş geldin!</div>
+    </div>
+
+    <!-- ALT MENÜLER -->
+    <div id="menuBar">
+
+      <button class="menuBtn" onclick="karakterButonunaBasildi()" aria-label="Karakter">
+        <img src="karakter-butonu.png" alt="Karakter">
+      </button>
+
+      <button class="menuBtn" onclick="openInventory()" aria-label="Envanter">
+        <img src="envanter-butonu.png" alt="Envanter">
+      </button>
+
+      <button class="menuBtn pvpArenaBtn" onclick="pvpArenaAc()" aria-label="PvP Arena">
+        <img src="pvp-arena.png" alt="PvP Arena">
+      </button>
+
+      <button class="menuBtn efsunSistemiBtn" onclick="efsunSistemiAc()" aria-label="Efsun Sistemi">
+        <img src="efsun-sistemi.png" alt="Efsun Sistemi">
+      </button>
+
+    </div>
+  </div>
+
+  <div id="deathScreen">
+  <div class="deathText">ÖLDÜN</div>
+  <div class="deathInfo">3 saniye sonra yeniden doğacaksın...</div>
+  </div>
+  <!-- AÇILAN MENÜ PENCERESİ -->
+  <div id="panelWindow">
+    <button id="closePanel" onclick="closePanel()">X</button>
+    <h3 id="panelTitle"></h3>
+    <div id="panelText"></div>
+  </div>
+
+</div>
+
+<div id="kayitDurumu" aria-live="polite"></div>
+
+<!-- OYUN MÜZİĞİ: oyun boyunca tekrar eder -->
+<audio id="gameMusic" src="cetin2soundtrack.mp3" preload="auto" loop></audio>
+
+<script>
+  
+// ======================================
+// ÇETİN2 ÇOK OYUNCULU SUNUCU BAĞLANTISI
+// ======================================
+
+const CETIN2_SUNUCU = "wss://etin2-server.onrender.com";
+
+let cetin2Baglanti = null;
+let cetin2Bagli = false;
+
+function cetin2SunucuyaBaglan() {
+  if (
+    cetin2Baglanti &&
+    (cetin2Baglanti.readyState === WebSocket.OPEN ||
+     cetin2Baglanti.readyState === WebSocket.CONNECTING)
+  ) {
+    return;
+  }
+
+  cetin2Baglanti = new WebSocket(CETIN2_SUNUCU);
+
+  cetin2Baglanti.onopen = function() {
+    cetin2Bagli = true;
+
+    cetin2Baglanti.send(JSON.stringify({
+      tur: "katil",
+      ad: oyuncuAdi,
+      harita: aktifHarita
+    }));
+
+    sohbetMesajiEkle(
+      "[Sunucu] Çok oyunculu sunucuya bağlandın!",
+      "bilgi"
+    );
+  };
+
+  cetin2Baglanti.onmessage = function(event) {
+    let veri;
+
+    try {
+      veri = JSON.parse(event.data);
+    } catch (hata) {
+      return;
+    }
+
+    if (veri.tur === "baglandi") {
+      console.log("Sunucuya bağlanıldı:", veri.oyuncuId);
+    }
+  };
+
+  cetin2Baglanti.onclose = function() {
+    cetin2Bagli = false;
+    console.log("ÇETİN2 sunucu bağlantısı kapandı.");
+  };
+
+  cetin2Baglanti.onerror = function() {
+    cetin2Bagli = false;
+    console.log("ÇETİN2 sunucu bağlantı hatası.");
+  };
+}
+
+// Mobil tarayıcılarda müzik, oyuncunun karakter seçimi dokunuşuyla başlatılır.
+function oyunMuziginiBaslat() {
+  const muzik = document.getElementById("gameMusic");
+  if (!muzik) return;
+
+  muzik.loop = true;
+  if (!muzik.paused) return;
+
+  const oynatma = muzik.play();
+  if (oynatma && typeof oynatma.catch === "function") {
+    // Ses başlatma reddedilirse oyun çalışmaya devam eder;
+    // sonraki kullanıcı dokunuşunda tekrar denenebilir.
+    oynatma.catch(function() {});
+  }
+}
+
+// Oyuncu bilgileri
+let oyuncuAdi = "";
+let secilenKarakter = "";
+
+// Giriş: kullanıcı adı ve parola birlikte doğrulanır.
+function oyunaBasla() {
+  const isim = document.getElementById("kullaniciAdi").value.trim();
+  const parola = document.getElementById("girisParola").value;
+  if (isim.length < 3) {
+    alert("Kullanıcı adı en az 3 karakter olmalı!");
+    document.getElementById("kullaniciAdi").focus();
+    return;
+  }
+  if (!parola) {
+    alert("Lütfen parolanı gir.");
+    document.getElementById("girisParola").focus();
+    return;
+  }
+  const kayit = kayitOku(isim);
+  if (!kayit) {
+    alert("Bu kullanıcı adına ait kayıt bulunamadı. Önce KAYIT OL butonunu kullan.");
+    return;
+  }
+  if (kayit.parola !== parola) {
+    alert("Parola hatalı. Lütfen tekrar dene.");
+    return;
+  }
+
+  oyuncuAdi = kayit.oyuncuAdi || isim;
+  kayitliProfilAnahtari = profilAnahtari(isim);
+  kayitliProfilVar = true;
+  oyunVerisiniYukle(kayit);
+  if (!secilenKarakter) {
+    document.getElementById("girisEkrani").style.display = "none";
+    document.getElementById("karakterEkrani").style.display = "block";
+    return;
+  }
+  kayitliOyunaDon(kayit);
+}
+
+// Kayıt panelini aç/kapat.
+function kayitEkraniniAc() {
+  document.getElementById("kayitPaneli").style.display = "flex";
+  document.getElementById("kayitKullaniciAdi").focus();
+}
+function kayitPaneliniKapat() {
+  document.getElementById("kayitPaneli").style.display = "none";
+}
+function parolaGoster(id, buton) {
+  const alan = document.getElementById(id);
+  if (!alan) return;
+  alan.type = alan.type === "password" ? "text" : "password";
+  if (buton) buton.classList.toggle("acik", alan.type === "text");
+}
+
+// Yeni hesap oluşturur ve oyun ilerlemesini aynı yerel profile bağlar.
+function kayitOl() {
+  const isim = document.getElementById("kayitKullaniciAdi").value.trim();
+  const parola = document.getElementById("kayitParola").value;
+  const tekrar = document.getElementById("kayitParolaTekrar").value;
+  const eposta = document.getElementById("kayitEposta").value.trim();
+  const robot = document.getElementById("robotOnay").checked;
+
+  if (!/^[a-zA-Z0-9_ğüşöçıİĞÜŞÖÇ-]{3,16}$/.test(isim)) {
+    alert("Kullanıcı adı 3-16 karakter olmalı; harf, rakam, _ veya - kullanabilirsin.");
+    document.getElementById("kayitKullaniciAdi").focus();
+    return;
+  }
+  if (parola.length < 6) {
+    alert("Parola en az 6 karakter olmalı.");
+    document.getElementById("kayitParola").focus();
+    return;
+  }
+  if (parola !== tekrar) {
+    alert("Parolalar eşleşmiyor.");
+    document.getElementById("kayitParolaTekrar").focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(eposta)) {
+    alert("Geçerli bir e-posta adresi gir.");
+    document.getElementById("kayitEposta").focus();
+    return;
+  }
+  if (!robot) {
+    alert("Lütfen Robot Değilim kutusunu işaretle.");
+    return;
+  }
+  if (kayitOku(isim)) {
+    alert("Bu kullanıcı adı zaten kayıtlı. Giriş ekranından giriş yapabilirsin.");
+    return;
+  }
+
+  oyuncuAdi = isim;
+  secilenKarakter = "";
+  kayitliProfilAnahtari = profilAnahtari(isim);
+  kayitliProfilVar = true;
+  try {
+    const veri = oyunVerisiniTopla();
+    veri.oyuncuAdi = isim;
+    veri.parola = parola;
+    veri.eposta = eposta;
+    localStorage.setItem(kayitliProfilAnahtari, JSON.stringify(veri));
+  } catch (hata) {
+    kayitliProfilVar = false;
+    alert("Kayıt oluşturulamadı. Tarayıcı depolama alanını kontrol et.");
+    return;
+  }
+  kayitPaneliniKapat();
+  document.getElementById("kullaniciAdi").value = isim;
+  document.getElementById("girisParola").value = "";
+  alert("Kayıt tamamlandı! Şimdi giriş ekranından kullanıcı adı ve parolanla giriş yapabilirsin.");
+}
+
+// Karakter seçimini kaydeder. Oyun ekranını şimdilik açmaz.
+
+function karakterSec(karakter) {
+
+  oyunMuziginiBaslat();
+  cetin2SunucuyaBaglan();
+  secilenKarakter = karakter;
+
+  document.getElementById("karakterEkrani").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  haritaDegistir("sehir");
+
+  document.getElementById("hudPlayerName").innerText =
+    oyuncuAdi + " - " + secilenKarakter;
+  document.getElementById("hudLevel").innerText = seviye;
+  hudGuncelle();
+
+  let karakterResmi = "";
+
+  if (karakter === "Savaşçı") {
+    karakterResmi = "savasci.png";
+  }
+  else if (karakter === "Sura") {
+    karakterResmi = "sura.png";
+  }
+  else if (karakter === "Şaman") {
+    karakterResmi = "saman.png";
+  }
+  else if (karakter === "Ninja") {
+    karakterResmi = "ninja.png";
+  }
+
+  const resim = document.getElementById("playerAvatar");
+  const fallback = document.getElementById("avatarFallback");
+
+  resim.style.display = "block";
+  fallback.style.display = "none";
+
+  resim.onerror = function() {
+    resim.style.display = "none";
+    fallback.style.display = "block";
+  };
+
+  resim.src = karakterResmi;
+  seciliBeceriId = (beceriTanimlari[karakter] || [])[0]?.id || null;
+  beceriButonunuGuncelle();
+  beceriKisayollariniGuncelle();
+}
+
+  
+let aktifHarita = "sehir";
+
+function haritaDegistir(harita) {
+  const beceriBilgi = document.getElementById("quickSkillInfo");
+  if (beceriBilgi) {
+    beceriBilgi.classList.remove("gorunur");
+    beceriBilgi.innerHTML = "";
+  }
+
+
+  const sahne = document.getElementById("scene");
+  const canavarKatmani = document.getElementById("monsterLayer");
+  const girisKapisi = document.getElementById("mapGate");
+  const sehirButonu = document.getElementById("cityReturn");
+  const dukkanDokunmaAlanlari = document.getElementById("cityShopHotspots");
+  const koyBilgesi = document.getElementById("villageSage");
+
+  aktifHarita = harita;
+  const tasElementi = document.getElementById("cetinTasi");
+  if (tasElementi) {
+    tasElementi.style.display = (harita === "canavar" && cetinTasiAktif) ? "block" : "none";
+  }
+
+  if (harita === "sehir") {
+
+    sahne.style.backgroundImage =
+      'url("sehir-haritasi.png")';
+
+    canavarKatmani.style.display = "none";
+    girisKapisi.style.display = "block";
+    sehirButonu.style.display = "none";
+    dukkanDokunmaAlanlari.style.display = "block";
+    if (koyBilgesi) koyBilgesi.style.display = "flex";
+
+  } else {
+
+    sahne.style.backgroundImage =
+      'url("oyun-haritasi.png")';
+
+    canavarKatmani.style.display = "block";
+    girisKapisi.style.display = "none";
+    sehirButonu.style.display = "block";
+    dukkanDokunmaAlanlari.style.display = "none";
+    if (koyBilgesi) koyBilgesi.style.display = "none";
+
+  }
+
+  // Karakteri haritanın başlangıç noktasına yerleştir
+  const oyuncu = document.getElementById("playerAvatar");
+
+  oyuncu.style.left = "50%";
+  oyuncu.style.top = "63%";
+}
+
+function dukkanAc(dukkan) {
+  if (aktifHarita !== "sehir") return;
+
+  const pencere = document.getElementById("panelWindow");
+  const panel = document.getElementById("panelText");
+  const baslik = document.getElementById("panelTitle");
+
+  const dukkanGorselleri = {
+    demirci: "demirci.png",
+    pazar: "pazar.png",
+    silah: "silah-saticisi.png",
+    zirh: "zirh-saticisi.png"
+  };
+
+  if (!dukkanGorselleri[dukkan]) return;
+
+  pencere.classList.remove("envanterAcik", "beceriAcik", "gorevAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("dukkanPanel");
+  gelistirmeHedefIndex = -1;
+  gelistirmeMalzemeIndex = -1;
+  pencere.style.backgroundImage = 'url("' + dukkanGorselleri[dukkan] + '")';
+  baslik.innerText = "";
+  aktifDukkan = dukkan;
+  dukkanModu = "al";
+  seciliMagazaEsya = null;
+
+  if (dukkan === "demirci") {
+    gelistirmePaneliniGuncelle();
+  } else {
+    dukkanPaneliniGuncelle();
+  }
+
+  pencere.style.display = "block";
+}
+
+function dukkanPaneliniGuncelle() {
+  const panel = document.getElementById("panelText");
+  if (!panel || !aktifDukkan || aktifDukkan === "demirci") return;
+
+  const dukkanEsyaListesi = {
+    silah: ["tahta_kilic", "demir_kilic"],
+    zirh: ["deri_zirh", "askeri_zirh"],
+    pazar: ["kirmizi_iksir", "mavi_iksir"]
+  };
+
+  // NPC panellerinde yalnızca satıcının kendi ürünleri gösterilir.
+  const alisListesi = (dukkanEsyaListesi[aktifDukkan] || []).map(function(id) {
+    const bilgi = Object.values(esyaKatalogu).find(item => item.id === id);
+    return bilgi ? { islem: "al", bilgi: bilgi, adet: 1 } : null;
+  }).filter(Boolean);
+
+  magazaGorunenListe = alisListesi.slice(0, 25);
+  if (seciliMagazaEsya !== null && seciliMagazaEsya >= magazaGorunenListe.length) {
+    seciliMagazaEsya = null;
+  }
+
+  let icerik = '<div class="magazaUrunIzgarasi">';
+  if (magazaGorunenListe.length === 0) {
+    icerik += '<div class="magazaBos">Bu dükkânda gösterilecek eşya yok.</div>';
+  } else {
+    magazaGorunenListe.forEach(function(kayit, index) {
+      const bilgi = kayit.bilgi;
+      const secili = seciliMagazaEsya === index ? " secili" : "";
+
+      icerik += `
+        <button type="button" class="magazaUrun${secili}"
+          onclick="magazaEsyaSec(${index})"
+          aria-label="${bilgi.ad} satın al">
+          <img src="${bilgi.gorsel}" alt="${bilgi.ad}">
+        </button>`;
+    });
+  }
+  icerik += '</div>';
+
+  const secim = seciliMagazaEsya === null ? null : magazaGorunenListe[seciliMagazaEsya];
+  const secimMetni = secim
+    ? secim.bilgi.ad + " · Alış: " + secim.bilgi.fiyat + " Yang"
+    : "Bir eşya seç; ardından Al butonuna bas";
+
+  icerik += `<div class="magazaSecimBilgisi">${secimMetni}</div>`;
+  icerik += `
+    <button type="button" class="magazaGorselButon al"
+      onclick="magazaGorselButonIsle('al')" aria-label="Satın Al"></button>`;
+
+  panel.innerHTML = icerik;
+}
+
+function magazaEsyaSec(index) {
+  seciliMagazaEsya = index;
+  dukkanPaneliniGuncelle();
+}
+
+function magazaGorselButonIsle(islem) {
+  if (islem !== "al") return;
+
+  const secim = seciliMagazaEsya === null ? null : magazaGorunenListe[seciliMagazaEsya];
+  if (!secim) {
+    sohbetMesajiEkle("[Mağaza] Önce satın almak istediğin eşyayı seçmelisin.", "bilgi");
+    return;
+  }
+
+  magazadanEsyaAl(secim.bilgi.id);
+}
+
+function magazadanEsyaAl(esyaId) {
+  const bilgi = Object.values(esyaKatalogu).find(item => item.id === esyaId);
+  if (!bilgi) return;
+
+  if (yang < bilgi.fiyat) {
+    sohbetMesajiEkle("[Mağaza] Yeterli Yang'ın yok.", "bilgi");
+    return;
+  }
+
+  if (!envantereEkle(esyaId, 1)) {
+    sohbetMesajiEkle("[Mağaza] Envanterin dolu.", "bilgi");
+    return;
+  }
+
+  yang -= bilgi.fiyat;
+  hudGuncelle();
+  hudIksirGuncelle();
+  sohbetMesajiEkle("[Mağaza] " + bilgi.ad + " satın alındı.", "esya");
+  dukkanPaneliniGuncelle();
+}
+
+
+/* DEMİRCİ: +0 ile +9 eşya geliştirme */
+const gelistirmeBasariOranlari = {6:70, 7:55, 8:40, 9:25};
+const gelistirmeYangMaliyetleri = {1:100, 2:200, 3:400, 4:800, 5:1600};
+
+function gelistirmePaneliniGuncelle() {
+  const panel = document.getElementById("panelText");
+  if (!panel) return;
+
+  if (gelistirmeHedefIndex >= envanter.length) gelistirmeHedefIndex = -1;
+  if (gelistirmeMalzemeIndex >= envanter.length) gelistirmeMalzemeIndex = -1;
+
+  // Yalnızca geliştirilebilir eşyaları ve geliştirme malzemelerini göster.
+  // İksirler ve diğer tüketilebilir eşyalar listeden çıkarılır; kalan eşyalar
+  // boşluk bırakmadan sırayla kutucuklara yerleşir. Tıklama gerçek envanter
+  // indeksini kullandığı için eşya seçimi ve malzeme tüketimi doğru kalır.
+  const demirciEsyaListesi = envanter
+    .map((esya, index) => ({ esya, index }))
+    .filter(({ esya }) => {
+      if (!esya) return false;
+      const bilgi = Object.values(esyaKatalogu).find(x => x.id === esya.id);
+      return bilgi && ["silah", "zirh", "malzeme", "gelistirme"].includes(bilgi.tur);
+    });
+
+  let icerik = '<div class="demirciGelistirme"><div class="demirciEnvanter">';
+
+  for (let yuva = 0; yuva < envanterKapasitesi; yuva++) {
+    const kayit = demirciEsyaListesi[yuva];
+    if (!kayit) {
+      icerik += '<button type="button" class="demirciEsya" aria-label="Boş yuva" disabled></button>';
+      continue;
+    }
+
+    const { esya, index } = kayit;
+    const bilgi = Object.values(esyaKatalogu).find(x => x.id === esya.id);
+    const seciliHedef = index === gelistirmeHedefIndex;
+    const seciliMalzeme = index === gelistirmeMalzemeIndex;
+    const sinif = "demirciEsya" +
+      (seciliHedef ? " secili" : "") +
+      (seciliMalzeme ? " malzemeSecili" : "");
+
+    icerik += `<button type="button" class="${sinif}"
+      onclick="demirciEsyaSec(${index})"
+      title="${bilgi.ad}"
+      aria-label="${bilgi.ad} seç">
+      <img src="${bilgi.gorsel}" alt="">
+      ${(esya.adet || 1) > 1 ? `<b class="demirciAdet">x${esya.adet}</b>` : ''}
+      ${(esya.basma || 0) > 0 ? `<b class="demirciBasma">+${esya.basma}</b>` : ''}
+    </button>`;
+  }
+
+  icerik += '</div>';
+  // Görseldeki mevcut kırmızı GELİŞTİR butonunun dokunma alanı.
+  icerik += '<button type="button" class="demirciGel" onclick="demirciGelistir()" aria-label="Geliştir"></button>';
+  icerik += '</div>';
+
+  panel.innerHTML = icerik;
+}
+
+function demirciEsyaSec(index) {
+  const esya = envanter[index];
+
+  // Boş yuvaya basılırsa o yuvadaki seçimi temizle.
+  if (!esya) {
+    if (gelistirmeHedefIndex === index) gelistirmeHedefIndex = -1;
+    if (gelistirmeMalzemeIndex === index) gelistirmeMalzemeIndex = -1;
+    gelistirmePaneliniGuncelle();
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu).find(x => x.id === esya.id);
+  if (!bilgi) return;
+
+  if (bilgi.tur === "silah" || bilgi.tur === "zirh") {
+    gelistirmeHedefIndex = index;
+  } else if (bilgi.tur === "malzeme") {
+    // Malzeme de panelde seçilebilir. +6 ve üzeri için uygun türü seçmek gerekir.
+    gelistirmeMalzemeIndex = index;
+  }
+
+  gelistirmePaneliniGuncelle();
+}
+
+function demirciGelistir() {
+  const hedef = envanter[gelistirmeHedefIndex];
+  if (!hedef) {
+    sohbetMesajiEkle("[Demirci] Önce geliştirmek istediğin silahı veya zırhı seç.", "bilgi");
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu).find(x => x.id === hedef.id);
+  if (!bilgi || (bilgi.tur !== "silah" && bilgi.tur !== "zirh")) return;
+
+  const mevcut = hedef.basma || 0;
+  if (mevcut >= 9) {
+    sohbetMesajiEkle("[Demirci] Bu eşya +9 seviyesinde.", "bilgi");
+    return;
+  }
+
+  const sonraki = mevcut + 1;
+  let gereken = 0;
+  let malzemeId = null;
+
+  if (sonraki <= 5) {
+    gereken = gelistirmeYangMaliyetleri[sonraki];
+    if (yang < gereken) {
+      sohbetMesajiEkle("[Demirci] Geliştirme için " + gereken + " Yang gerekiyor.", "bilgi");
+      return;
+    }
+  } else {
+    gereken = (sonraki - 5) * 5;
+    malzemeId = bilgi.tur === "silah" ? "kopek_disi" : "kopek_postu";
+
+    const seciliMalzeme = envanter[gelistirmeMalzemeIndex];
+    if (!seciliMalzeme || seciliMalzeme.id !== malzemeId) {
+      const malzemeAdi = bilgi.tur === "silah" ? "Yabani Köpek Dişi" : "Yabani Köpek Postu";
+      sohbetMesajiEkle("[Demirci] Bu geliştirme için " + malzemeAdi + " seçmelisin.", "bilgi");
+      return;
+    }
+    if (seciliMalzeme.adet < gereken) {
+      sohbetMesajiEkle("[Demirci] " + gereken + " adet " +
+        (bilgi.tur === "silah" ? "Yabani Köpek Dişi" : "Yabani Köpek Postu") +
+        " gerekiyor.", "bilgi");
+      return;
+    }
+  }
+
+  // +1 ile +5 arasında yalnızca Yang harcanır.
+  if (sonraki <= 5) yang -= gereken;
+
+  // Hedef eşyadan bir adet ayır; malzeme seçimini dizide yeniden bul.
+  envanterdenCikar(gelistirmeHedefIndex, 1);
+
+  const basari = sonraki <= 5 || Math.random() * 100 < gelistirmeBasariOranlari[sonraki];
+
+  if (sonraki >= 6 && malzemeId) {
+    const malzemeIndex = envanter.findIndex(x => x.id === malzemeId);
+    if (malzemeIndex >= 0) envanterdenCikar(malzemeIndex, gereken);
+  }
+
+  if (basari) {
+    envantereEkle(hedef.id, 1, sonraki, hedef.efsunlar || []);
+    sohbetMesajiEkle("[Demirci] Başarılı! " + bilgi.ad + " +" + sonraki + " oldu.", "esya");
+  } else {
+    envantereEkle(hedef.id, 1, mevcut, hedef.efsunlar || []);
+    sohbetMesajiEkle("[Demirci] Geliştirme başarısız. Eşyanın seviyesi korunuyor.", "bilgi");
+  }
+
+  gelistirmeHedefIndex = -1;
+  gelistirmeMalzemeIndex = -1;
+  hudGuncelle();
+  gelistirmePaneliniGuncelle();
+}
+
+let efsunHedefIndex = -1;
+
+const efsunHavuzu = {
+  silah: [
+    {ad:"Saldırı Gücü", min:3, max:12, birim:""},
+    {ad:"Kritik Şansı", min:2, max:8, birim:"%"},
+    {ad:"Canavara Ek Hasar", min:3, max:10, birim:"%"},
+    {ad:"Yang Kazanımı", min:2, max:8, birim:"%"}
+  ],
+  zirh: [
+    {ad:"Savunma", min:2, max:10, birim:""},
+    {ad:"Maksimum Can", min:40, max:180, birim:""},
+    {ad:"Maksimum Mana", min:20, max:90, birim:""},
+    {ad:"Hasar Azaltma", min:2, max:7, birim:"%"}
+  ]
+};
+
+function efsunRastgeleUret(tur) {
+  const havuz = efsunHavuzu[tur] || [];
+  const secim = havuz[Math.floor(Math.random() * havuz.length)];
+  return {ad:secim.ad, deger:Math.floor(Math.random()*(secim.max-secim.min+1))+secim.min, birim:secim.birim};
+}
+
+function efsunSistemiAc() {
+  const pencere = document.getElementById("panelWindow");
+  if (!pencere) return;
+  pencere.classList.remove("envanterAcik","dukkanPanel","beceriAcik","gorevAcik","bilgeAcik","efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("efsunAktifPanel");
+  pencere.style.backgroundImage = "none";
+  document.getElementById("panelTitle").innerText = "EFSUN SİSTEMİ";
+  efsunHedefIndex = -1;
+  efsunPaneliniGuncelle();
+  pencere.style.display = "block";
+}
+
+function efsunPaneliniGuncelle() {
+  const panel = document.getElementById("panelText");
+  if (!panel) return;
+  const uygun = envanter.map((esya,index) => {
+    const bilgi = Object.values(esyaKatalogu).find(x => x.id === esya.id);
+    return bilgi && ["silah","zirh"].includes(bilgi.tur) ? {esya,bilgi,index} : null;
+  }).filter(Boolean);
+
+  let out = '<div class="cetinEfsun"><div class="cetinEfsunBilgi">Silahını veya zırhını seç. Efsun Nesnesi yeni bonus ekler; Arıtma Kağıdı bonusları yeniden belirler.</div><div class="cetinEfsunEsyaGrid">';
+  if (!uygun.length) out += '<div class="cetinEfsunBos">Envanterinde efsunlanabilecek silah veya zırh yok.</div>';
+  uygun.forEach(k => {
+    out += `<button type="button" class="cetinEfsunEsya${k.index===efsunHedefIndex?" secili":""}" onclick="efsunHedefSec(${k.index})"><img src="${k.bilgi.gorsel}" alt=""><span><b>${k.bilgi.ad}${k.esya.basma?" +"+k.esya.basma:""}</b><small>${(k.esya.efsunlar||[]).length}/5 bonus</small></span></button>`;
+  });
+  out += '</div>';
+if (
+  efsunHedefIndex >= 0 &&
+  (!envanter[efsunHedefIndex] ||
+   envanter[efsunHedefIndex].adet !== 1)
+) {
+  efsunHedefIndex = -1;
+}
+  const hedef = envanter[efsunHedefIndex];
+  const bilgi = hedef ? Object.values(esyaKatalogu).find(x => x.id === hedef.id) : null;
+  out += '<div class="cetinEfsunBonusAlani">';
+  if (hedef && bilgi) {
+    const bonuslar = hedef.efsunlar || [];
+    out += `<b>${bilgi.ad} · Efsunlar</b>`;
+    out += bonuslar.length
+      ? '<div class="cetinEfsunBonusGrid">'+bonuslar.map(x=>`<span>✦ ${x.ad} +${x.deger}${x.birim||""}</span>`).join("")+'</div>'
+      : '<p>Bu eşyada henüz efsun yok.</p>';
+  } else out += '<p>Efsunlamak için yukarıdan bir eşya seç.</p>';
+  out += '</div>';
+
+  const nesne = envanter.find(x=>x.id==="efsun_nesnesi")?.adet || 0;
+  const kagit = envanter.find(x=>x.id==="aritma_kagidi")?.adet || 0;
+  const sayi = hedef ? (hedef.efsunlar||[]).length : 0;
+  out += `<div class="cetinEfsunMalzeme"><span>🔮 Efsun Nesnesi: <b>${nesne}</b></span><span>📜 Arıtma Kağıdı: <b>${kagit}</b></span></div>
+  <div class="cetinEfsunButonlar"><button type="button" onclick="efsunUygula('ekle')" ${!hedef||!nesne||sayi>=5?"disabled":""}>EFSUN EKLE</button><button type="button" onclick="efsunUygula('yenile')" ${!hedef||!kagit||sayi===0?"disabled":""}>ARIT / YENİLE</button></div>
+  <div class="cetinEfsunDipnot">En fazla 5 bonus. Efsunlar kuşanıldığında karakter özelliklerine yansır.</div></div>`;
+  panel.innerHTML = out;
+}
+function efsunHedefSec(index) {
+  const esya = envanter[index];
+
+  if (!esya || esya.adet !== 1) {
+    sohbetMesajiEkle(
+      "[Efsun] Geçerli bir eşya seçmelisin.",
+      "bilgi"
+    );
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu)
+    .find(x => x.id === esya.id);
+
+  if (!bilgi || !["silah", "zirh"].includes(bilgi.tur)) {
+    return;
+  }
+
+  efsunHedefIndex = index;
+  efsunPaneliniGuncelle();
+}
+
+function efsunUygula(islem) {
+  const hedef = envanter[efsunHedefIndex];
+  const bilgi = hedef ? Object.values(esyaKatalogu).find(x=>x.id===hedef.id) : null;
+  if (!hedef || !bilgi || !["silah","zirh"].includes(bilgi.tur)) {
+    sohbetMesajiEkle("[Efsun] Önce silah veya zırh seçmelisin.","bilgi"); return;
+  }
+  const bonuslar = hedef.efsunlar || [];
+  if (islem==="ekle") {
+    const malzeme = envanter.findIndex(x=>x.id==="efsun_nesnesi");
+    if (malzeme<0 || bonuslar.length>=5) {
+      sohbetMesajiEkle("[Efsun] Efsun Nesnesi gerekli; eşya en fazla 5 bonus taşıyabilir.","bilgi"); return;
+    }
+    const yeni = efsunRastgeleUret(bilgi.tur);
+    hedef.efsunlar = bonuslar.concat(yeni);
+    envanterdenCikar(malzeme,1);
+    sohbetMesajiEkle("[Efsun] "+yeni.ad+" +"+yeni.deger+(yeni.birim||"")+" eklendi.","esya");
+  } else if (islem==="yenile") {
+    const malzeme = envanter.findIndex(x=>x.id==="aritma_kagidi");
+    if (malzeme<0 || !bonuslar.length) {
+      sohbetMesajiEkle("[Efsun] Arıtma Kağıdı ve en az bir mevcut bonus gerekli.","bilgi"); return;
+    }
+    hedef.efsunlar = bonuslar.map(()=>efsunRastgeleUret(bilgi.tur));
+    envanterdenCikar(malzeme,1);
+    sohbetMesajiEkle("[Efsun] Eşyanın bonusları yeniden belirlendi.","esya");
+  }
+  efsunAktifDegerleriUygula();
+  hudGuncelle();
+  efsunPaneliniGuncelle();
+}
+
+function kusanilanEfsunDegeri(ad) {
+  return [...(kusanilanSilahEfsunlari||[]),...(kusanilanZirhEfsunlari||[])]
+    .filter(x=>x.ad===ad).reduce((t,x)=>t+(Number(x.deger)||0),0);
+}
+
+function efsunAktifDegerleriUygula() {
+  const yeniCan = 1000 + Math.max(0,seviye-1)*20 + Math.max(0,canlilik-5)*20 + kusanilanEfsunDegeri("Maksimum Can");
+  const yeniMana = 400 + Math.max(0,seviye-1)*10 + Math.max(0,zeka-5)*10 + kusanilanEfsunDegeri("Maksimum Mana");
+  const eskiCan = maksimumCan, eskiMana = maksimumMana;
+  maksimumCan = yeniCan; maksimumMana = yeniMana;
+  can = Math.min(maksimumCan,can+Math.max(0,yeniCan-eskiCan));
+  mana = Math.min(maksimumMana,mana+Math.max(0,yeniMana-eskiMana));
+}
+
+
+function pvpArenaAc() {
+  openPanel(
+    "PvP Arena",
+    "PvP Arena henüz hazırlanıyor. Bu alan, düello ve arena savaşları eklendiğinde kullanılacak."
+  );
+}
+
+function openPanel(baslik, metin) {
+
+  let pencere = document.getElementById("panelWindow");
+
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "beceriAcik", "gorevAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.style.backgroundImage = "none";
+
+  document.getElementById("panelTitle").innerText = baslik;
+
+  document.getElementById("panelText").innerText = metin;
+
+  pencere.style.display = "block";
+}
+  
+
+function openInventory() {
+  let pencere = document.getElementById("panelWindow");
+  let baslik = document.getElementById("panelTitle");
+  let panel = document.getElementById("panelText");
+
+  pencere.classList.remove("dukkanPanel", "beceriAcik", "gorevAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("envanterAcik");
+  pencere.style.backgroundImage = 'url("envanter-cerceve.png")';
+  pencere.style.backgroundPosition = "center";
+  pencere.style.backgroundSize = "100% 100%";
+  pencere.style.backgroundRepeat = "no-repeat";
+  baslik.innerText = "";
+  seciliEnvanterIndex = -1;
+
+  let html = '<div class="envanterGrid">';
+  for (let i = 0; i < envanterKapasitesi; i++) {
+    let esya = envanter[i];
+    if (esya) {
+      let bilgi = Object.values(esyaKatalogu).find(item => item.id === esya.id);
+      html += `
+        <button type="button" class="envanterSlot dolu"
+          onclick="envanterEsyaSec(${i})" id="envanterSlot${i}">
+          <img src="${bilgi ? bilgi.gorsel : ''}" alt="${bilgi ? bilgi.ad : 'Eşya'}">
+          ${(esya.basma || 0) > 0 ? `<span class="envanterBasma">+${esya.basma}</span>` : ""}
+          ${(esya.efsunlar || []).length ? `<span class="envanterEfsunIsareti">✦${esya.efsunlar.length}</span>` : ""}
+          <span class="envanterAdet">x${esya.adet}</span>
+        </button>`;
+    } else {
+      html += `<button type="button" class="envanterSlot"
+        onclick="envanterEsyaSec(${i})" id="envanterSlot${i}"></button>`;
+    }
+  }
+  html += `</div>
+    <div class="envanterAlt">
+      <div id="seciliEsyaBilgi">Bir eşya seç.</div>
+      <button class="esyaIslemBtn" onclick="seciliEsyaKusan()">Kuşan</button>
+      <button class="esyaIslemBtn" onclick="seciliEsyaKullan()">Kullan</button>
+      <button class="esyaIslemBtn" onclick="seciliEsyaSat()">Sat</button>
+    </div>`;
+
+  panel.innerHTML = html;
+  pencere.style.display = "block";
+  hudIksirGuncelle();
+}
+
+function envanterEsyaSec(index) {
+  seciliEnvanterIndex = index;
+  document.querySelectorAll(".envanterSlot").forEach(slot => slot.classList.remove("secili"));
+
+  const slot = document.getElementById("envanterSlot" + index);
+  if (slot) slot.classList.add("secili");
+
+  const secim = envanter[index];
+  const bilgi = secim ? Object.values(esyaKatalogu).find(item => item.id === secim.id) : null;
+  const alan = document.getElementById("seciliEsyaBilgi");
+  if (!alan) return;
+
+  if (!bilgi) {
+    alan.innerText = "Boş yuva";
+    return;
+  }
+
+  let durum = (bilgi.id === kusanilanSilah || bilgi.id === kusanilanZirh) ? " (Kuşanılı)" : "";
+  if ((secim.basma || 0) > 0) durum += " +" + secim.basma;
+  if ((secim.efsunlar || []).length) durum += " · " + secim.efsunlar.map(x => x.ad + " +" + x.deger + (x.birim || "")).join(", ");
+  const satisFiyati = Math.floor((bilgi.fiyat || 0) / 2);
+  const satisBilgisi = satisFiyati > 0 ? " · Satış: " + satisFiyati + " Yang/adet" : " · Satılamaz";
+  alan.innerText = bilgi.ad + " x" + secim.adet + durum + satisBilgisi;
+}
+
+function seciliEsyaSat() {
+  const esya = envanter[seciliEnvanterIndex];
+  if (!esya) {
+    sohbetMesajiEkle("[Envanter] Satmak için önce bir eşya seçmelisin.", "bilgi");
+    return;
+  }
+
+  if (esya.id === kusanilanSilah || esya.id === kusanilanZirh) {
+    sohbetMesajiEkle("[Envanter] Kuşanılmış eşyayı satamazsın. Önce başka bir eşya kuşan.", "bilgi");
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu).find(item => item.id === esya.id);
+  if (!bilgi || !bilgi.fiyat || bilgi.fiyat <= 0) {
+    sohbetMesajiEkle("[Envanter] Bu eşya satılamaz.", "bilgi");
+    return;
+  }
+
+  const satisFiyati = Math.floor(bilgi.fiyat / 2);
+  if (satisFiyati <= 0) {
+    sohbetMesajiEkle("[Envanter] Bu eşya satılamaz.", "bilgi");
+    return;
+  }
+
+  envanterdenCikar(seciliEnvanterIndex, 1);
+  yang += satisFiyati;
+  seciliEnvanterIndex = -1;
+  hudGuncelle();
+  hudIksirGuncelle();
+  sohbetMesajiEkle("[Envanter] " + bilgi.ad + " satıldı. +" + satisFiyati + " Yang.", "esya");
+  openInventory();
+}
+
+function envanterdenCikar(index, adet = 1) {
+  const esya = envanter[index];
+  if (!esya || adet <= 0) return false;
+  esya.adet -= adet;
+  if (esya.adet <= 0) envanter.splice(index, 1);
+  hudIksirGuncelle();
+  return true;
+}
+
+function seciliEsyaKusan() {
+  const esya = envanter[seciliEnvanterIndex];
+  if (!esya) {
+    sohbetMesajiEkle("[Envanter] Önce bir eşya seçmelisin.", "bilgi");
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu).find(item => item.id === esya.id);
+  if (!bilgi || (bilgi.tur !== "silah" && bilgi.tur !== "zirh")) {
+    sohbetMesajiEkle("[Envanter] Bu eşya kuşanılamaz.", "bilgi");
+    return;
+  }
+
+  const yeniBasma = esya.basma || 0;
+  const yeniEfsunlar = (esya.efsunlar || []).map(x => ({...x}));
+  const eskiKusanilan = bilgi.tur === "silah" ? kusanilanSilah : kusanilanZirh;
+  const eskiBasma = bilgi.tur === "silah" ? kusanilanSilahBasma : kusanilanZirhBasma;
+  const eskiEfsunlar = bilgi.tur === "silah" ? kusanilanSilahEfsunlari : kusanilanZirhEfsunlari;
+  envanterdenCikar(seciliEnvanterIndex, 1);
+  if (eskiKusanilan) envantereEkle(eskiKusanilan, 1, eskiBasma, eskiEfsunlar);
+
+  if (bilgi.tur === "silah") {
+    kusanilanSilah = bilgi.id;
+    kusanilanSilahBasma = yeniBasma;
+    kusanilanSilahEfsunlari = yeniEfsunlar;
+  } else {
+    kusanilanZirh = bilgi.id;
+    kusanilanZirhBasma = yeniBasma;
+    kusanilanZirhEfsunlari = yeniEfsunlar;
+  }
+  efsunAktifDegerleriUygula();
+
+  sohbetMesajiEkle("[Eşya] " + bilgi.ad + " kuşanıldı.", "esya");
+  seciliEnvanterIndex = -1;
+  hudGuncelle();
+  openInventory();
+}
+
+function seciliEsyaKullan() {
+  const esya = envanter[seciliEnvanterIndex];
+  if (!esya) {
+    sohbetMesajiEkle("[Envanter] Önce bir eşya seçmelisin.", "bilgi");
+    return;
+  }
+
+  const bilgi = Object.values(esyaKatalogu).find(item => item.id === esya.id);
+  if (!bilgi) return;
+
+  if (bilgi.tur === "iksir") {
+    iksirKullan(bilgi.id, seciliEnvanterIndex);
+  } else {
+    sohbetMesajiEkle("[Envanter] Bu eşya şu anda kullanılamıyor.", "bilgi");
+  }
+}
+
+function iksirKullan(esyaId, index = -1) {
+  let esyaIndex = index;
+  if (esyaIndex < 0) esyaIndex = envanter.findIndex(item => item.id === esyaId);
+
+  const esya = envanter[esyaIndex];
+  const bilgi = Object.values(esyaKatalogu).find(item => item.id === esyaId);
+  if (!esya || !bilgi || bilgi.tur !== "iksir") {
+    sohbetMesajiEkle("[İksir] Kullanmak için envanterinde bu iksir olmalı.", "bilgi");
+    return;
+  }
+  if (olum) return;
+
+  if (esyaId === "kirmizi_iksir") {
+    if (can >= maksimumCan) {
+      sohbetMesajiEkle("[İksir] Canın zaten tamamen dolu.", "bilgi");
+      return;
+    }
+    const onceki = can;
+    can = Math.min(maksimumCan, can + bilgi.canYenileme);
+    sohbetMesajiEkle("[İksir] +" + (can - onceki) + " can yenilendi.", "bilgi");
+  } else if (esyaId === "mavi_iksir") {
+    if (mana >= maksimumMana) {
+      sohbetMesajiEkle("[İksir] Manan zaten tamamen dolu.", "bilgi");
+      return;
+    }
+    const onceki = mana;
+    mana = Math.min(maksimumMana, mana + bilgi.manaYenileme);
+    sohbetMesajiEkle("[İksir] +" + (mana - onceki) + " mana yenilendi.", "bilgi");
+  }
+
+  envanterdenCikar(esyaIndex, 1);
+  seciliEnvanterIndex = -1;
+  hudGuncelle();
+  hudIksirGuncelle();
+
+  const pencere = document.getElementById("panelWindow");
+  if (pencere.style.display === "block" && pencere.classList.contains("envanterAcik")) {
+    openInventory();
+  }
+}
+
+function hudIksirGuncelle() {
+  const kirmizi = envanter.find(item => item.id === "kirmizi_iksir");
+  const mavi = envanter.find(item => item.id === "mavi_iksir");
+  const kirmiziAlan = document.getElementById("kirmiziIksirAdet");
+  const maviAlan = document.getElementById("maviIksirAdet");
+  if (kirmiziAlan) kirmiziAlan.innerText = kirmizi ? kirmizi.adet : 0;
+  if (maviAlan) maviAlan.innerText = mavi ? mavi.adet : 0;
+}
+
+function closePanel() {
+  const pencere = document.getElementById("panelWindow");
+  pencere.style.display = "none";
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "beceriAcik", "gorevAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.style.backgroundImage = "none";
+  aktifDukkan = null;
+}
+
+function showMessage(metin) {
+
+  alert(metin);
+
+}
+
+// DOKUNARAK KARAKTER HAREKETİ
+
+const oyunHaritasi = document.getElementById("scene");
+const oyuncuGorseli = document.getElementById("playerAvatar");
+
+oyunHaritasi.addEventListener("pointerdown", function(event) {
+
+  // Dokunulan noktanın oyun ekranındaki konumu
+  const alan = document.getElementById("gameScreen");
+  const dikdortgen = alan.getBoundingClientRect();
+
+  let x = event.clientX - dikdortgen.left;
+  let y = event.clientY - dikdortgen.top;
+
+  // Karakterin kontrol alanının dışına çıkmasını önle
+  x = Math.max(30, Math.min(x, dikdortgen.width - 30));
+
+  y = Math.max(
+    dikdortgen.height * 0.30,
+    Math.min(y, dikdortgen.height * 0.82)
+  );
+
+  // Piksel konumunu yüzdeye dönüştür
+  const xYuzde = (x / dikdortgen.width) * 100;
+  const yYuzde = (y / dikdortgen.height) * 100;
+
+  // Karakteri hedefe gönder
+  oyuncuGorseli.style.left = xYuzde + "%";
+  oyuncuGorseli.style.top = yYuzde + "%";
+
+});
+
+// CANAVAR CAN SİSTEMİ
+
+// ÇETİN TAŞI: Her 10 Yabani Köpek öldürülünce bir taş ortaya çıkar.
+let toplamYabaniKopekOldurme = 0;
+let cetinTasiAktif = false;
+let bekleyenCetinTasi = 0;
+let cetinTasiCan = 1000;
+const cetinTasiMaksimumCan = 1000;
+
+let kurtlar = [
+  {can:100, maksimumCan:100, sonSaldiri:0},
+  {can:100, maksimumCan:100, sonSaldiri:0},
+  {can:100, maksimumCan:100, sonSaldiri:0}
+];
+
+// KARAKTER GELİŞİM SİSTEMİ
+
+let seviye = 1;
+let xp = 0;
+let yang = 0;
+
+// Karakter statüleri ve harcanmamış gelişim puanları
+let guc = 5;          // STR: fiziksel saldırı
+let zeka = 5;         // INT: büyü gücü ve mana
+let canlilik = 5;     // VIT: maksimum can
+let ceviklik = 5;     // DEX: savunma
+let statPuan = 0;
+let beceriPuan = 0;
+let beceriSeviyeleri = {}; // Her beceri ilk açıldığında 1. seviyededir.
+
+// KARAKTER SAVAŞ ÖZELLİKLERİ
+
+let maksimumCan = 1000;
+let can = 1000;
+
+let maksimumMana = 400;
+let mana = 400;
+
+let saldiri = 15;
+  
+
+// ENVANTER VERİLERİ
+let envanter = [];
+const envanterKapasitesi = 25;
+let kusanilanSilah = null;
+let kusanilanZirh = null;
+let kusanilanSilahBasma = 0;
+let kusanilanZirhBasma = 0;
+let kusanilanSilahEfsunlari = [];
+let kusanilanZirhEfsunlari = [];
+let gelistirmeHedefIndex = -1;
+let gelistirmeMalzemeIndex = -1;
+let seciliEnvanterIndex = -1;
+let aktifDukkan = null;
+let dukkanModu = "al";
+let seciliMagazaEsya = null;
+let magazaGorunenListe = [];
+
+const esyaKatalogu = {
+
+  pasliKilic: {
+    id: "tahta_kilic",
+    ad: "Tahta Kılıç",
+    tur: "silah",
+    fiyat: 100,
+    saldiri: 5,
+    savunma: 0,
+    gorsel: "tahta-kilic.png"
+  },
+
+  celikKilic: {
+    id: "demir_kilic",
+    ad: "Demir Kılıç",
+    tur: "silah",
+    fiyat: 300,
+    saldiri: 10,
+    savunma: 0,
+    gorsel: "demir-kilic.png"
+  },
+
+  deriZirh: {
+    id: "deri_zirh",
+    ad: "Deri Zırh",
+    tur: "zirh",
+    fiyat: 150,
+    saldiri: 0,
+    savunma: 5,
+    gorsel: "deri-zirh.png"
+  },
+
+  savasciZirhi: {
+    id: "askeri_zirh",
+    ad: "Askeri Zırh",
+    tur: "zirh",
+    fiyat: 400,
+    saldiri: 0,
+    savunma: 10,
+    gorsel: "askeri-zirh.png"
+  },
+
+  kirmiziIksir: {
+    id: "kirmizi_iksir",
+    ad: "Kırmızı İksir",
+    tur: "iksir",
+    fiyat: 20,
+    canYenileme: 50,
+    gorsel: "kirmizi-iksir.png"
+  },
+
+  maviIksir: {
+    id: "mavi_iksir",
+    ad: "Mavi İksir",
+    tur: "iksir",
+    fiyat: 20,
+    manaYenileme: 30,
+    gorsel: "mavi-iksir.png"
+  },
+
+  kopekDisi: {
+    id: "kopek_disi",
+    ad: "Yabani Köpek Dişi",
+    tur: "malzeme",
+    fiyat: 15,
+    gorsel: "kopek-disi.png"
+  },
+
+  kopekPostu: {
+    id: "kopek_postu",
+    ad: "Yabani Köpek Postu",
+    tur: "malzeme",
+    fiyat: 20,
+    gorsel: "yabani-kopek-postu.png"
+  },
+
+  efsunNesnesi: {
+    id: "efsun_nesnesi",
+    ad: "Efsun Nesnesi",
+    tur: "gelistirme",
+    fiyat: 0,
+    gorsel: "efsun-nesnesi.png"
+  },
+
+  aritmaKagidi: {
+    id: "aritma_kagidi",
+    ad: "Arıtma Kağıdı",
+    tur: "gelistirme",
+    fiyat: 0,
+    gorsel: "aritma-kagidi.png"
+  }
+
+};
+
+
+// KÖY BİLGESİ VE CANAVAR AVCISI GÖREVİ
+let gorevAktif = false;
+let gorevOldurme = 0;
+let gorevOdulAlindi = false;
+const gorevHedefi = 5;
+
+function gorevCanavarOlduruldu() {
+  if (!gorevAktif || gorevOdulAlindi || gorevOldurme >= gorevHedefi) return;
+
+  gorevOldurme++;
+  sohbetMesajiEkle("[Görev] Canavar Avcısı: " + gorevOldurme + "/" + gorevHedefi, "bilgi");
+
+  if (gorevOldurme >= gorevHedefi) {
+    sohbetMesajiEkle("[Görev] Görev tamamlandı! Köy Bilgesi'nden veya Görev panelinden ödülünü al.", "esya");
+  }
+
+  const pencere = document.getElementById("panelWindow");
+  const panel = document.getElementById("panelText");
+  if (pencere && panel && pencere.style.display === "block" &&
+      panel.querySelector(".gorevPanelIcerik")) {
+    gorevPaneliniAc();
+  }
+}
+
+function gorevKabulEt() {
+  if (gorevOdulAlindi) {
+    sohbetMesajiEkle("[Görev] Bu görevin ödülünü zaten aldın.", "bilgi");
+    gorevPaneliniAc();
+    return;
+  }
+  if (gorevAktif) {
+    sohbetMesajiEkle("[Görev] Canavar Avcısı görevi zaten aktif.", "bilgi");
+    gorevPaneliniAc();
+    return;
+  }
+
+  gorevAktif = true;
+  gorevOldurme = 0;
+  sohbetMesajiEkle("[Görev] Canavar Avcısı görevi kabul edildi. 5 Yabani Köpek avla!", "esya");
+  gorevPaneliniAc();
+}
+
+function gorevOdulAl() {
+  if (!gorevAktif || gorevOldurme < gorevHedefi || gorevOdulAlindi) {
+    sohbetMesajiEkle("[Görev] Önce 5 Yabani Köpek avlamalısın.", "bilgi");
+    gorevPaneliniAc();
+    return;
+  }
+
+  gorevOdulAlindi = true;
+  gorevAktif = false;
+  yang += 500;
+  xp += 100;
+
+  while (xp >= gerekenXp()) {
+    xp -= gerekenXp();
+    seviyeAtla();
+  }
+
+  hudGuncelle();
+  sohbetMesajiEkle("[Görev] Ödül alındı: +500 Yang ve +100 EXP!", "esya");
+  gorevPaneliniAc();
+}
+
+function gorevPaneliniAc() {
+  const pencere = document.getElementById("panelWindow");
+  const panel = document.getElementById("panelText");
+  const baslik = document.getElementById("panelTitle");
+  if (!pencere || !panel || !baslik) return;
+
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "beceriAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("gorevAcik");
+  baslik.innerText = "";
+
+  let durum = "Henüz kabul edilmedi.";
+  let dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevKabulEt()">Görevi Kabul Et</button>';
+
+  if (gorevOdulAlindi) {
+    durum = "Tamamlandı · Ödül alındı.";
+    dugme = '<button type="button" class="gorevIslemBtn" disabled>Ödül Alındı</button>';
+  } else if (gorevAktif && gorevOldurme >= gorevHedefi) {
+    durum = "Görev tamamlandı! Ödülünü alabilirsin.";
+    dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevOdulAl()">Ödülü Al</button>';
+  } else if (gorevAktif) {
+    durum = "Devam ediyor · " + (gorevHedefi - gorevOldurme) + " canavar kaldı.";
+    dugme = '<button type="button" class="gorevIslemBtn" disabled>Av devam ediyor</button>';
+  }
+
+  panel.innerHTML = `
+    <div class="gorevPanelIcerik">
+      <div class="gorevPanelKart">
+        <div class="gorevPanelBaslik">🐺 Canavar Avcısı</div>
+        <p>Köyü tehdit eden 5 Yabani Köpek'i yen.</p>
+        <div class="gorevIlerlemeMetni">${Math.min(gorevOldurme, gorevHedefi)} / ${gorevHedefi} Yabani Köpek</div>
+        <div class="gorevIlerlemeCubuk"><span style="width:${Math.min(100, gorevOldurme / gorevHedefi * 100)}%"></span></div>
+        <p class="gorevDurumMetni">${durum}</p>
+        <div class="gorevOdulMetni">Ödül: 500 Yang + 100 EXP</div>
+        ${dugme}
+      </div>
+    </div>`;
+  pencere.style.display = "block";
+}
+
+function koyBilgesiyleKonus() {
+  if (aktifHarita !== "sehir") return;
+
+  const pencere = document.getElementById("panelWindow");
+  // Envanter, dükkân, karakter veya başka bir pencere açıksa
+  // Köy Bilgesi tıklaması hiçbir işlemi tetiklemesin.
+  if (!pencere || getComputedStyle(pencere).display !== "none") return;
+  const panel = document.getElementById("panelText");
+  const baslik = document.getElementById("panelTitle");
+  if (!pencere || !panel || !baslik) return;
+
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "beceriAcik", "gorevAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("bilgeAcik");
+  baslik.innerText = "";
+
+  let diyalog = "Merhaba yolcu! Köyümüzü Yabani Köpekler tehdit ediyor. Bana yardım eder misin?";
+  let dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevKabulEt()">Canavar Avcısı Görevini Kabul Et</button>';
+
+  if (gorevOdulAlindi) {
+    diyalog = "Köyümüzü kurtardın! Cesaretin ve yardımın için sana minnettarım. Yeni maceralarda başarılar!";
+    dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevPaneliniAc()">Görev Geçmişini Gör</button>';
+  } else if (gorevAktif && gorevOldurme >= gorevHedefi) {
+    diyalog = "Harika iş çıkardın! Beş Yabani Köpek'i de yendin. İşte hak ettiğin ödül.";
+    dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevOdulAl()">Ödülünü Al</button>';
+  } else if (gorevAktif) {
+    diyalog = "Köyü korumaya devam et. " + (gorevHedefi - gorevOldurme) + " Yabani Köpek daha yenmelisin.";
+    dugme = '<button type="button" class="gorevIslemBtn" onclick="gorevPaneliniAc()">Görev İlerlemesini Gör</button>';
+  }
+
+  panel.innerHTML = `
+    <div class="gorevPanelIcerik">
+      <div class="bilgeDiyalogSimge">🧙</div>
+      <p class="bilgeDiyalogMetni">${diyalog}</p>
+      ${dugme}
+      <button type="button" class="gorevIkincilBtn" onclick="gorevPaneliniAc()">Görev Panelini Aç</button>
+    </div>`;
+  pencere.style.display = "block";
+}
+
+  // KARAKTER ÖLÜM DURUMU
+let olum = false;
+
+function gerekenXp() {
+  return seviye * 1000;
+}
+
+function seviyeAtla() {
+  seviye++;
+
+  // Önceki seviye ödülleri korunur.
+  maksimumCan += 20;
+  maksimumMana += 10;
+  saldiri += 5;
+  can = maksimumCan;
+  mana = maksimumMana;
+
+  // Her seviyede 4 statü ve 1 beceri puanı.
+  statPuan += 4;
+  beceriPuan += 1;
+
+  sohbetMesajiEkle(
+    "[Seviye] Seviye " + seviye + "! +4 Statü Puanı, +1 Beceri Puanı kazandın.",
+    "esya"
+  );
+
+  // SV alanındaki sayı ve CAN/MANA/EXP göstergelerini hemen yenile.
+  hudGuncelle();
+
+  if (document.getElementById("panelWindow")?.classList.contains("beceriAcik")) {
+    karakterPaneliniAc();
+  }
+}
+
+
+function hudGuncelle() {
+
+  document.getElementById("yangValue").innerText = yang + " Yang";
+  document.getElementById("hudLevel").innerText = seviye;
+
+  // Doluluk yüzdeleri hiçbir koşulda PNG çerçevesinin dışına çıkmaz.
+  const yuzdeyiSinirla = (deger, maksimum) =>
+    Math.max(0, Math.min(100, maksimum > 0 ? (deger / maksimum) * 100 : 0));
+
+  document.getElementById("hpFill").style.width =
+    yuzdeyiSinirla(can, maksimumCan) + "%";
+
+  document.getElementById("mpFill").style.width =
+    yuzdeyiSinirla(mana, maksimumMana) + "%";
+
+  document.getElementById("xpFill").style.width =
+    yuzdeyiSinirla(xp, gerekenXp()) + "%";
+
+  document.getElementById("hpLabel").innerText =
+    can + " / " + maksimumCan + " CAN";
+
+  document.getElementById("mpLabel").innerText =
+    mana + " / " + maksimumMana + " MANA";
+
+  document.getElementById("xpLabel").innerText =
+    xp + " / " + gerekenXp() + " XP";
+}
+
+  
+function karakterOldu() {
+
+  if (olum) return;
+
+  olum = true;
+
+  const oyuncu = document.getElementById("playerAvatar");
+
+  // Ölüm efekti
+  oyuncu.classList.add("oyuncuOldu");
+
+  // Ölüm ekranını göster
+  document.getElementById("deathScreen").style.display = "flex";
+
+
+  // 3 saniye sonra yeniden doğ
+  setTimeout(function() {
+
+    // Başlangıç konumuna dön
+    oyuncu.style.left = "50%";
+    oyuncu.style.top = "63%";
+
+    // Can ve mana tamamen dolsun
+    can = maksimumCan;
+    mana = maksimumMana;
+
+    // Ölüm efektini kaldır
+    oyuncu.classList.remove("oyuncuOldu");
+
+    // Ölüm ekranını kapat
+    document.getElementById("deathScreen").style.display = "none";
+
+    // Karakter tekrar savaşabilir
+    olum = false;
+
+    // Göstergeleri güncelle
+    hudGuncelle();
+
+
+
+  }, 3000);
+}
+
+  
+
+function kopekSaldirilariniKontrolEt() {
+
+  const oyun = document.getElementById("gameScreen");
+
+  if (oyun.style.display === "none") return;
+
+  // Karakter öldüyse saldırı kontrolünü durdur
+  if (olum || can <= 0 || Date.now() < beceriEtkileri.gorunmezBitis) return;
+
+  const oyuncu = document.getElementById("playerAvatar");
+  const oyuncuAlan = oyuncu.getBoundingClientRect();
+
+  const oyuncuX = oyuncuAlan.left + oyuncuAlan.width / 2;
+  const oyuncuY = oyuncuAlan.top + oyuncuAlan.height / 2;
+
+  kurtlar.forEach(function(kopek, index) {
+
+    if (kopek.can <= 0 || olum) return;
+
+    const kopekElementi =
+      document.getElementById("kopek" + (index + 1));
+
+    if (kopekElementi.style.display === "none") return;
+
+    const alan = kopekElementi.getBoundingClientRect();
+
+    const kopekX = alan.left + alan.width / 2;
+    const kopekY = alan.top + alan.height / 2;
+
+    const mesafe = Math.hypot(
+      oyuncuX - kopekX,
+      oyuncuY - kopekY
+    );
+
+    if (mesafe <= 150) {
+
+      const simdi = Date.now();
+
+      if (simdi - kopek.sonSaldiri >= 1500) {
+
+        kopek.sonSaldiri = simdi;
+
+        const zirhBilgisi = Object.values(esyaKatalogu).find(
+          item => item.id === kusanilanZirh
+        );
+        const savunma = (zirhBilgisi ? (zirhBilgisi.savunma || 0) + (kusanilanZirhBasma * 4) : 0) + kusanilanEfsunDegeri("Savunma");
+        const ceviklikSavunmasi = Math.floor((ceviklik - 5) / 2);
+        const beceriSavunmasi = Date.now() < beceriEtkileri.savunmaBitis
+          ? (beceriEtkileri.savunmaBonus || 0) : 0;
+        const azaltma = Date.now() < beceriEtkileri.azaltmaBitis
+          ? beceriEtkileri.hasarAzaltma : 0;
+        const temelHasar = Math.max(1, 10 - savunma - ceviklikSavunmasi - beceriSavunmasi);
+        const efsunAzaltma = kusanilanEfsunDegeri("Hasar Azaltma") / 100;
+        const toplamAzaltma = Math.min(0.75, azaltma + efsunAzaltma);
+        const alinanHasar = Math.max(1, Math.floor(temelHasar * (1 - toplamAzaltma)));
+        can -= alinanHasar;
+
+        if (can < 0) can = 0;
+
+        hudGuncelle();
+
+        // CAN SIFIRLANDI: ÖLÜM FONKSİYONUNU ÇAĞIR
+        if (can === 0) {
+          karakterOldu();
+          return;
+        }
+      }
+    }
+
+  });
+
+}
+
+function envantereEkle(esyaId, adet = 1, basma = 0, efsunlar = []) {
+  const miktar = Math.floor(Number(adet));
+
+  if (!esyaId || !Number.isFinite(miktar) || miktar <= 0) {
+    return false;
+  }
+
+  const bilgi = Object.values(esyaKatalogu)
+    .find(item => item.id === esyaId);
+
+  if (!bilgi) return false;
+
+  const bonuslar = Array.isArray(efsunlar)
+    ? efsunlar.map(x => ({...x}))
+    : [];
+
+  // SİLAH VE ZIRHLAR AYRI AYRI YUVA KULLANIR
+  if (bilgi.tur === "silah" || bilgi.tur === "zirh") {
+
+    if (envanter.length + miktar > envanterKapasitesi) {
+      sohbetMesajiEkle(
+        "[Envanter] Yeterli boş yer yok.",
+        "bilgi"
+      );
+      return false;
+    }
+
+    for (let i = 0; i < miktar; i++) {
+      envanter.push({
+        id: esyaId,
+        adet: 1,
+        basma: basma,
+        efsunlar: bonuslar.map(x => ({...x}))
+      });
+    }
+
+    hudIksirGuncelle();
+    return true;
+  }
+
+  // DİĞER EŞYALAR ESKİSİ GİBİ BİRİKEBİLİR
+  const mevcutEsya = envanter.find(item =>
+    item.id === esyaId &&
+    (item.basma || 0) === basma &&
+    JSON.stringify(item.efsunlar || []) ===
+    JSON.stringify(bonuslar)
+  );
+
+  if (mevcutEsya) {
+    mevcutEsya.adet += miktar;
+    hudIksirGuncelle();
+    return true;
+  }
+
+  if (envanter.length >= envanterKapasitesi) {
+    return false;
+  }
+
+  envanter.push({
+    id: esyaId,
+    adet: miktar,
+    basma: basma,
+    efsunlar: bonuslar
+  });
+
+  hudIksirGuncelle();
+  return true;
+}
+// SOHBET ALANINA MESAJ EKLE
+function sohbetMesajiEkle(metin, tur = "bilgi") {
+  const sohbet = document.getElementById("lootChat");
+  if (!sohbet) return;
+
+  const satir = document.createElement("div");
+  satir.className = "lootChatLine " + (tur === "esya" ? "esya" : "bilgi");
+  satir.textContent = metin;
+  sohbet.appendChild(satir);
+
+  // Sohbet alanında yalnızca son 8 mesajı tut.
+  while (sohbet.children.length > 8) {
+    sohbet.removeChild(sohbet.firstElementChild);
+  }
+  sohbet.scrollTop = sohbet.scrollHeight;
+}
+
+// Her eşya için bağımsız düşme ihtimalini kontrol et.
+function canavarEsyaDusur(dusmeTablosu) {
+  dusmeTablosu.forEach(function(kayit) {
+    if (Math.random() * 100 < kayit.sans) {
+      const eklendi = envantereEkle(kayit.id, 1);
+      const esya = Object.values(esyaKatalogu).find(item => item.id === kayit.id);
+
+      if (eklendi && esya) {
+        sohbetMesajiEkle("[Eşya] " + esya.ad + " x1 elde edildi!", "esya");
+      } else if (!eklendi && esya) {
+        sohbetMesajiEkle("[Envanter] " + esya.ad + " düştü ancak çanta dolu!", "bilgi");
+      }
+    }
+  });
+}
+
+// Her 100 köpek öldürülmesinde bir Çetin Taşı oluşturur.
+function cetinTasiDusur() {
+  toplamYabaniKopekOldurme++;
+  if (toplamYabaniKopekOldurme % 100 !== 0) return;
+
+  if (cetinTasiAktif) {
+    bekleyenCetinTasi++;
+    
+    return;
+  }
+  cetinTasiOlustur();
+}
+
+function cetinTasiOlustur() {
+  cetinTasiAktif = true;
+  cetinTasiCan = cetinTasiMaksimumCan;
+  const tas = document.getElementById("cetinTasi");
+  const canCubugu = document.getElementById("cetinTasiCanCubugu");
+  if (canCubugu) canCubugu.style.width = "100%";
+  if (tas) tas.style.display = aktifHarita === "canavar" ? "block" : "none";
+}
+
+function cetinTasiSaldir(beceriHasari = 0) {
+  if (!cetinTasiAktif || olum || aktifHarita !== "canavar") return;
+
+  const silahBilgisi = Object.values(esyaKatalogu).find(item => item.id === kusanilanSilah);
+  const silahBonusu = silahBilgisi ? (silahBilgisi.saldiri || 0) : 0;
+  let hasar = (25 + silahBonusu + (kusanilanSilahBasma * 5) + guc * 2 + beceriHasari + kusanilanEfsunDegeri("Saldırı Gücü")) * (1 + kusanilanEfsunDegeri("Canavara Ek Hasar") / 100);
+  if (Date.now() < beceriEtkileri.saldiriBitis) hasar += beceriEtkileri.saldiriBonus;
+  if (Math.random()*100 < kusanilanEfsunDegeri("Kritik Şansı") || (Date.now() < beceriEtkileri.kritikBitis && Math.random() < beceriEtkileri.kritikSans)) {
+    hasar *= 2;
+    sohbetMesajiEkle("[Kritik] Çifte hasar!", "esya");
+  }
+
+  cetinTasiCan = Math.max(0, cetinTasiCan - Math.floor(hasar));
+  const canCubugu = document.getElementById("cetinTasiCanCubugu");
+  if (canCubugu) canCubugu.style.width = (cetinTasiCan / cetinTasiMaksimumCan * 100) + "%";
+
+  if (cetinTasiCan <= 0) {
+    cetinTasiAktif = false;
+    const tas = document.getElementById("cetinTasi");
+    if (tas) tas.style.display = "none";
+    canavarEsyaDusur([
+      { id: "efsun_nesnesi", sans: 55 },
+      { id: "aritma_kagidi", sans: 45 }
+    ]);
+    if (bekleyenCetinTasi > 0) {
+      bekleyenCetinTasi--;
+      cetinTasiOlustur();
+    }
+  }
+}
+
+
+// Oyuncu butonları: en yakın yaşayan yabani köpeğe saldırır.
+function enYakinCanavarNo() {
+  const oyuncu = document.getElementById("playerAvatar");
+  if (!oyuncu || olum || aktifHarita !== "canavar") return null;
+
+  const oyuncuRect = oyuncu.getBoundingClientRect();
+  const oyuncuX = oyuncuRect.left + oyuncuRect.width / 2;
+  const oyuncuY = oyuncuRect.top + oyuncuRect.height / 2;
+
+  let enYakinNo = null;
+  let enKisaMesafe = Infinity;
+
+  kurtlar.forEach(function(kopek, index) {
+    if (!kopek || kopek.can <= 0) return;
+    const element = document.getElementById("kopek" + (index + 1));
+    if (!element || getComputedStyle(element).display === "none") return;
+
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const mesafe = Math.hypot(x - oyuncuX, y - oyuncuY);
+
+    if (mesafe < enKisaMesafe) {
+      enKisaMesafe = mesafe;
+      enYakinNo = index + 1;
+    }
+  });
+
+  return enYakinNo;
+}
+
+function oyuncuNormalSaldiri() {
+  if (olum) return;
+  if (aktifHarita !== "canavar") {
+    sohbetMesajiEkle("[Savaş] Saldırmak için Canavar Haritasına geçmelisin.", "bilgi");
+    return;
+  }
+
+  const hedef = enYakinCanavarNo();
+  if (!hedef) {
+    if (cetinTasiAktif) {
+      cetinTasiSaldir();
+      return;
+    }
+    sohbetMesajiEkle("[Savaş] Yakında saldırılacak canlı canavar yok.", "bilgi");
+    return;
+  }
+  canavaraSaldir(hedef);
+}
+
+
+// STATÜ VE BECERİ GELİŞİMİ
+function beceriSeviyesi(id) {
+  return beceriSeviyeleri[id] || 1;
+}
+
+function statArttir(tur) {
+  if (statPuan <= 0) {
+    sohbetMesajiEkle("[Statü] Harcanabilir statü puanın yok.", "bilgi");
+    return;
+  }
+
+  if (tur === "guc") {
+    guc++;
+  } else if (tur === "zeka") {
+    zeka++;
+    maksimumMana += 10;
+    mana = Math.min(maksimumMana, mana + 10);
+  } else if (tur === "canlilik") {
+    canlilik++;
+    maksimumCan += 20;
+    can = Math.min(maksimumCan, can + 20);
+  } else if (tur === "ceviklik") {
+    ceviklik++;
+  } else {
+    return;
+  }
+
+  statPuan--;
+  hudGuncelle();
+  sohbetMesajiEkle("[Statü] " + statAdi(tur) + " artırıldı.", "bilgi");
+  karakterPaneliniAc();
+}
+
+function statAdi(tur) {
+  return ({
+    guc: "Güç (STR)",
+    zeka: "Zeka (INT)",
+    canlilik: "Canlılık (VIT)",
+    ceviklik: "Çeviklik (DEX)"
+  })[tur] || tur;
+}
+
+function beceriYukselt(id) {
+  const beceri = karakterBecerileri().find(item => item.id === id);
+  if (!beceri) return;
+
+  const mevcut = beceriSeviyesi(id);
+  if (mevcut >= 10) {
+    sohbetMesajiEkle("[Beceri] Bu beceri en yüksek seviyede.", "bilgi");
+    return;
+  }
+  if (beceriPuan <= 0) {
+    sohbetMesajiEkle("[Beceri] Harcanabilir beceri puanın yok.", "bilgi");
+    return;
+  }
+
+  beceriSeviyeleri[id] = mevcut + 1;
+  beceriPuan--;
+  sohbetMesajiEkle("[Beceri] " + beceri.ad + " " + (mevcut + 1) + ". seviyeye yükseltildi.", "esya");
+  karakterPaneliniAc();
+}
+
+function beceriGelistirilmisHasar(beceri) {
+  const seviye = beceriSeviyesi(beceri.id);
+  const sinifBuyu = secilenKarakter === "Sura" || secilenKarakter === "Şaman";
+  const anaStat = sinifBuyu ? zeka : guc;
+  const buyuDengeFarki = sinifBuyu ? (zeka - guc) * 2 : 0;
+  return (beceri.hasar || 0) + (seviye - 1) * 12 + buyuDengeFarki;
+}
+
+  function karakterButonunaBasildi() {
+  const pencere = document.getElementById("panelWindow");
+
+  if (
+    pencere.style.display === "block" &&
+    pencere.classList.contains("beceriAcik")
+  ) {
+    closePanel();
+  } else {
+    karakterPaneliniAc();
+  }
+  }
+function karakterPaneliniAc() {
+  const pencere = document.getElementById("panelWindow");
+  const panel = document.getElementById("panelText");
+  if (!pencere || !panel) return;
+
+  // Karakter butonuna ikinci kez basılırsa açık karakter penceresini kapat.
+
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "gorevAcik", "bilgeAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("beceriAcik");
+  pencere.style.backgroundImage = "none";
+  document.getElementById("panelTitle").innerText = "";
+
+  let html = `
+    <div class="karakterGelisimBaslik">Karakter Gelişimi · Sv. ${seviye}</div>
+    <div class="gelisimPuanSatiri">
+      <span>Statü Puanı: <b>${statPuan}</b></span>
+      <span>Beceri Puanı: <b>${beceriPuan}</b></span>
+    </div>
+    <div class="gelisimBolumBaslik">STATÜLER</div>
+    <div class="statGelisimSatiri">
+      <div><b>Güç (STR)</b><small>Fiziksel saldırı gücünü artırır.</small></div>
+      <strong>${guc}</strong>
+      <button type="button" onclick="statArttir('guc')" ${statPuan <= 0 ? "disabled" : ""}>+</button>
+    </div>
+    <div class="statGelisimSatiri">
+      <div><b>Zeka (INT)</b><small>Büyü gücünü ve maksimum manayı artırır.</small></div>
+      <strong>${zeka}</strong>
+      <button type="button" onclick="statArttir('zeka')" ${statPuan <= 0 ? "disabled" : ""}>+</button>
+    </div>
+    <div class="statGelisimSatiri">
+      <div><b>Canlılık (VIT)</b><small>Maksimum canı artırır.</small></div>
+      <strong>${canlilik}</strong>
+      <button type="button" onclick="statArttir('canlilik')" ${statPuan <= 0 ? "disabled" : ""}>+</button>
+    </div>
+    <div class="statGelisimSatiri">
+      <div><b>Çeviklik (DEX)</b><small>Canavar saldırılarına karşı savunmayı artırır.</small></div>
+      <strong>${ceviklik}</strong>
+      <button type="button" onclick="statArttir('ceviklik')" ${statPuan <= 0 ? "disabled" : ""}>+</button>
+    </div>
+    <div class="gelisimOzet">
+      Saldırı: <b>${saldiri + guc * 2}</b> ·
+      Büyü: <b>${zeka * 3}</b> ·
+      Savunma: <b>${ceviklik}</b><br>
+      Maks. Can: <b>${maksimumCan}</b> · Maks. Mana: <b>${maksimumMana}</b>
+    </div>
+    <div class="gelisimBolumBaslik">BECERİLER</div>`;
+
+  karakterBecerileri().forEach(function(beceri) {
+    const seviye = beceriSeviyesi(beceri.id);
+    const kalan = Math.max(0, (beceriBeklemeZamanlari[beceri.id] || 0) - Date.now());
+    const secili = beceri.id === seciliBeceriId ? " secili" : "";
+    html += `
+      <div class="beceriGelisimSatiri${secili}">
+        <button type="button" class="beceriGelisimSec" onclick="karakterBecerisiSec('${beceri.id}')">
+          <span class="beceriIcon beceriIcon${karakterBecerileri().indexOf(beceri) + 1}"
+            style="background-image:url('${(beceriGorselleri[secilenKarakter] || [])[karakterBecerileri().indexOf(beceri)] || ""}');background-size:contain;background-position:center;background-repeat:no-repeat" aria-hidden="true"></span>
+          <span class="beceriGelisimMetin">
+          <b>${beceri.ad}</b>
+          <small>${beceri.aciklama}</small>
+          <small>Seviye ${seviye}/10 · ${beceri.mana} Mana · ${kalan > 0 ? (kalan / 1000).toFixed(1) + ' sn bekleme' : 'Hazır'}</small>
+          </span>
+        </button>
+        <button type="button" class="beceriYukseltBtn"
+          onclick="beceriYukselt('${beceri.id}')"
+          ${beceriPuan <= 0 || seviye >= 10 ? "disabled" : ""}>+</button>
+      </div>`;
+  });
+
+  html += `<div class="gelisimAltBilgi">Beceri adına dokunarak seç. Sağdaki + ile beceriyi geliştir. Her beceri en fazla 10. seviyeye çıkar.</div>`;
+  panel.innerHTML = html;
+  pencere.style.display = "block";
+}
+
+function karakterBecerisiSec(id) {
+  if (!karakterBecerileri().some(item => item.id === id)) return;
+  seciliBeceriId = id;
+  beceriButonunuGuncelle();
+  beceriKisayolSeciminiGuncelle();
+  karakterPaneliniAc();
+}
+
+// KARAKTERE ÖZEL 5 BECERİ
+const beceriTanimlari = {
+  "Savaşçı": [
+    {id:"guclu_kilic", ad:"Güçlü Kılıç Darbesi", aciklama:"Tek düşmana güçlü bir kılıç darbesi vurur.", mana:30, bekleme:5, tur:"hasar", hasar:55},
+    {id:"ilahi_kilic", ad:"İlahi Kılıç", aciklama:"12 saniye boyunca saldırı gücünü artırır.", mana:35, bekleme:20, tur:"saldiriBuff", sure:12, bonus:20},
+    {id:"kilic_dansi", ad:"Kılıç Dansı", aciklama:"Yakındaki tüm düşmanlara alan hasarı verir.", mana:40, bekleme:10, tur:"alan", hasar:45},
+    {id:"uc_kilic", ad:"Üç Kılıçlı Darbe", aciklama:"Tek düşmana art arda üç darbe indirir.", mana:45, bekleme:12, tur:"seri", hasar:28, vurus:3},
+    {id:"sav_nefret", ad:"Savaşçı Nefreti", aciklama:"15 saniye saldırı ve savunmayı artırır.", mana:40, bekleme:25, tur:"savasBuff", sure:15, bonus:15, savunma:8}
+  ],
+  "Sura": [
+    {id:"buyulu_kilic", ad:"Büyülü Kılıç", aciklama:"12 saniye boyunca saldırı gücünü büyüyle artırır.", mana:35, bekleme:20, tur:"saldiriBuff", sure:12, bonus:25},
+    {id:"buyulu_zirh", ad:"Büyülü Zırh", aciklama:"15 saniye boyunca alınan hasarı azaltır.", mana:35, bekleme:22, tur:"savunmaBuff", sure:15, azaltma:0.5},
+    {id:"kanli_el", ad:"Kanlı El Darbesi", aciklama:"Tek düşmana yoğun büyü hasarı verir.", mana:35, bekleme:7, tur:"hasar", hasar:75},
+    {id:"buyucu_kasirgasi", ad:"Büyücü Kasırgası", aciklama:"Yakındaki tüm düşmanlara kasırga hasarı verir.", mana:45, bekleme:12, tur:"alan", hasar:50},
+    {id:"vudu", ad:"Vudu Büyüsü", aciklama:"12 saniye boyunca düşmanların verdiği hasarı azaltır.", mana:30, bekleme:20, tur:"savunmaBuff", sure:12, azaltma:0.5}
+  ],
+  "Şaman": [
+    {id:"ilahi_kudret", ad:"İlahi Kudret", aciklama:"15 saniye boyunca saldırı gücünü artırır.", mana:35, bekleme:20, tur:"saldiriBuff", sure:15, bonus:20},
+    {id:"goksel_hazine", ad:"Göksel Hazine", aciklama:"15 saniye kritik vuruş şansını artırır.", mana:40, bekleme:22, tur:"kritikBuff", sure:15, kritik:0.35},
+    {id:"mucizevi_sifa", ad:"Mucizevi Şifa", aciklama:"8 saniye boyunca her saniye can yeniler.", mana:35, bekleme:25, tur:"iyilesme", sure:8, iyilesme:18},
+    {id:"tanrisal_saldiri", ad:"Tanrısal Saldırı", aciklama:"Yakındaki tüm düşmanlara gökten güçlü saldırı indirir.", mana:50, bekleme:14, tur:"alan", hasar:70},
+    {id:"saman_dansi", ad:"Şaman Dansı", aciklama:"Yakındaki tüm düşmanlara seri alan hasarı verir.", mana:45, bekleme:12, tur:"alanSeri", hasar:30, vurus:2}
+  ],
+  "Ninja": [
+    {id:"golge_oyunu", ad:"Gölge Oyunu", aciklama:"8 saniye boyunca düşman saldırılarından gizlenir.", mana:30, bekleme:22, tur:"gorunmez", sure:8},
+    {id:"samuray_vurusu", ad:"Samuray Vuruşu", aciklama:"Tek düşmana sert ve gizli bir darbe vurur.", mana:30, bekleme:6, tur:"hasar", hasar:80},
+    {id:"bicak_taklasi", ad:"Bıçak Taklası", aciklama:"Tek düşmana art arda üç hızlı darbe vurur.", mana:40, bekleme:10, tur:"seri", hasar:25, vurus:3},
+    {id:"gizli_suikast", ad:"Gizli Suikast", aciklama:"Yakındaki tüm düşmanlara görünmez darbeler indirir.", mana:45, bekleme:12, tur:"alan", hasar:55},
+    {id:"golge_zehri", ad:"Gölge Zehri", aciklama:"Tek düşmanı 5 saniye boyunca zehirleyerek hasar verir.", mana:35, bekleme:15, tur:"zehir", hasar:12, sure:5}
+  ]
+};
+
+let seciliBeceriId = null;
+let beceriBeklemeZamanlari = {};
+let beceriEtkileri = {
+  saldiriBonus: 0, saldiriBitis: 0,
+  savunmaBonus: 0, savunmaBitis: 0,
+  hasarAzaltma: 0, azaltmaBitis: 0,
+  kritikSans: 0, kritikBitis: 0,
+  gorunmezBitis: 0
+};
+
+function karakterBecerileri() {
+  return beceriTanimlari[secilenKarakter] || [];
+}
+
+function seciliBeceriBilgisi() {
+  return karakterBecerileri().find(b => b.id === seciliBeceriId) || karakterBecerileri()[0] || null;
+}
+
+const beceriGorselleri = {
+  "Savaşçı": ["beceri-savasci-1.png", "beceri-savasci-2.png", "beceri-savasci-3.png", "beceri-savasci-4.png", "beceri-savasci-5.png"],
+  "Sura": ["beceri-sura-2.png", "beceri-sura-1.png", "beceri-sura-3.png", "beceri-sura-4.png", "beceri-sura-5.png"],
+  "Şaman": ["beceri-saman-1.png", "beceri-saman-2.png", "beceri-saman-3.png", "beceri-saman-4.png", "beceri-saman-5.png"],
+  "Ninja": ["beceri-ninja-1.png", "beceri-ninja-2.png", "beceri-ninja-3.png", "beceri-ninja-5.png", "beceri-ninja-4.png"]
+};
+
+const beceriSpriteKonumlari = ["center", "center", "center", "center", "center"];
+
+function beceriButonunuGuncelle() {
+  const buton = document.getElementById("skillBtn");
+  const beceri = seciliBeceriBilgisi();
+  if (!buton || !beceri) return;
+
+  const beceriIndex = karakterBecerileri().findIndex(item => item.id === beceri.id);
+  const sinifGorselleri = beceriGorselleri[secilenKarakter] || [];
+  const beceriGorseli = sinifGorselleri[beceriIndex];
+  if (beceriGorseli) {
+    buton.style.backgroundImage = 'url("' + beceriGorseli + '")';
+    buton.style.backgroundSize = "contain";
+    buton.style.backgroundPosition = "center";
+    buton.style.backgroundRepeat = "no-repeat";
+  }
+  buton.title = beceri.ad + " kullan";
+  buton.setAttribute("aria-label", beceri.ad + " kullan");
+}
+
+function beceriKisayollariniGuncelle() {
+  const alan = document.getElementById("quickSkillBar");
+  if (!alan) return;
+  const dosyalar = beceriGorselleri[secilenKarakter] || [];
+  alan.innerHTML = karakterBecerileri().map(function(beceri, index) {
+    const dosya = dosyalar[index] || "";
+    return `<button type="button" class="quickSkill" data-skill="${beceri.id}"
+      style="background-image:url('${dosya}');background-size:contain;background-position:center;background-repeat:no-repeat"
+      onclick="beceriKisayolTikla('${beceri.id}')" aria-label="${beceri.ad}" title="${beceri.ad}">
+      <span class="quickSkillCooldown" id="quickCooldown_${beceri.id}"></span>
+    </button>`;
+  }).join("");
+  beceriKisayolSeciminiGuncelle();
+}
+
+function beceriKisayolSeciminiGuncelle() {
+  document.querySelectorAll(".quickSkill").forEach(function(buton) {
+    buton.classList.toggle("secili", buton.dataset.skill === seciliBeceriId);
+  });
+}
+
+function beceriBilgiGoster(beceri) {
+  const bilgi = document.getElementById("quickSkillInfo");
+  if (!bilgi) return;
+  bilgi.innerHTML = `<strong>${beceri.ad}</strong><span>${beceri.aciklama}</span><small>${beceri.mana} Mana · ${beceri.bekleme} sn bekleme</small>`;
+  bilgi.classList.add("gorunur");
+}
+
+function beceriKisayolTikla(id) {
+  const beceri = karakterBecerileri().find(item => item.id === id);
+  if (!beceri) return;
+
+  const bilgi = document.getElementById("quickSkillInfo");
+  const ayniBeceri = seciliBeceriId === id;
+  const aciklamaAcik = bilgi && bilgi.classList.contains("gorunur");
+
+  if (aktifHarita === "sehir" && ayniBeceri && aciklamaAcik) {
+    bilgi.classList.remove("gorunur");
+    bilgi.innerHTML = "";
+    return;
+  }
+
+  seciliBeceriId = id;
+  beceriButonunuGuncelle();
+  beceriKisayolSeciminiGuncelle();
+
+  if (aktifHarita === "sehir") {
+    beceriBilgiGoster(beceri);
+    return;
+  }
+
+  if (aktifHarita === "canavar") {
+    oyuncuBecerisi();
+  }
+}
+
+function beceriPaneliniAc() {
+  const pencere = document.getElementById("panelWindow");
+  const panel = document.getElementById("panelText");
+  pencere.classList.remove("envanterAcik", "dukkanPanel", "beceriAcik", "efsunBeklemePaneli", "efsunAktifPanel");
+  pencere.classList.add("beceriAcik");
+  pencere.style.backgroundImage = "none";
+
+  const sinifGorselleri = beceriGorselleri[secilenKarakter] || [];
+  let html = '<div class="beceriPanelBaslik">' + secilenKarakter + ' Becerileri</div>';
+  karakterBecerileri().forEach(function(beceri, index) {
+    const beceriGorseli = sinifGorselleri[index] || "";
+    const secili = beceri.id === seciliBeceriId ? " secili" : "";
+    const kalan = Math.max(0, (beceriBeklemeZamanlari[beceri.id] || 0) - Date.now());
+    html += `
+      <button type="button" class="beceriKart${secili}" onclick="beceriSec('${beceri.id}')">
+        <span class="beceriIcon beceriIcon${index + 1}" style="background-image:url('${beceriGorseli}');background-size:contain;background-position:center;background-repeat:no-repeat" aria-hidden="true"></span>
+        <span class="beceriKartIcerik">
+          <strong>${beceri.ad}</strong>
+          <small>${beceri.aciklama}</small>
+          <small>Seviye ${beceriSeviyesi(beceri.id)}/10 · ${beceri.mana} Mana · ${kalan > 0 ? (kalan / 1000).toFixed(1) + ' sn bekleme' : 'Hazır'}</small>
+        </span>
+      </button>`;
+  });
+  html += '<div class="beceriPanelAlt">Bir beceri seç. Seçtiğin beceriyi mor simgeli butonla kullan.</div>';
+  panel.innerHTML = html;
+  document.getElementById("panelTitle").innerText = "";
+  pencere.style.display = "block";
+}
+
+function beceriSec(id) {
+  if (!karakterBecerileri().some(b => b.id === id)) return;
+  seciliBeceriId = id;
+  beceriButonunuGuncelle();
+  beceriKisayolSeciminiGuncelle();
+  beceriPaneliniAc();
+  const secim = seciliBeceriBilgisi();
+  sohbetMesajiEkle("[Beceri] " + secim.ad + " seçildi.", "bilgi");
+}
+
+function beceriHazirMi(beceri) {
+  const kalan = (beceriBeklemeZamanlari[beceri.id] || 0) - Date.now();
+  if (kalan > 0) {
+    sohbetMesajiEkle("[Beceri] " + beceri.ad + " için " + Math.ceil(kalan / 1000) + " saniye beklemelisin.", "bilgi");
+    return false;
+  }
+  if (mana < beceri.mana) {
+    sohbetMesajiEkle("[Beceri] " + beceri.ad + " için " + beceri.mana + " mana gerekli.", "bilgi");
+    return false;
+  }
+  return true;
+}
+
+function yasayanCanavarlar() {
+  const liste = [];
+  kurtlar.forEach(function(kopek, index) {
+    const element = document.getElementById("kopek" + (index + 1));
+    if (kopek && kopek.can > 0 && element && getComputedStyle(element).display !== "none") {
+      liste.push(index + 1);
+    }
+  });
+  return liste;
+}
+
+function oyuncuBecerisi() {
+  if (olum) return;
+  if (aktifHarita !== "canavar") {
+    sohbetMesajiEkle("[Beceri] Becerileri kullanmak için Canavar Haritasına geçmelisin.", "bilgi");
+    return;
+  }
+
+  const beceri = seciliBeceriBilgisi();
+  if (!beceri) {
+    sohbetMesajiEkle("[Beceri] Önce Beceri menüsünden bir beceri seç.", "bilgi");
+    return;
+  }
+  if (!beceriHazirMi(beceri)) return;
+
+  const hedefler = yasayanCanavarlar();
+  const hedef = enYakinCanavarNo();
+  const tur = beceri.tur;
+  const hedefGerekli = ["hasar", "seri", "zehir"].includes(tur);
+
+  if (hedefGerekli && !hedef) {
+    sohbetMesajiEkle("[Beceri] Yakında saldırılacak canlı canavar yok.", "bilgi");
+    return;
+  }
+  if (["alan", "alanSeri"].includes(tur) && hedefler.length === 0) {
+    sohbetMesajiEkle("[Beceri] Yakında saldırılacak canlı canavar yok.", "bilgi");
+    return;
+  }
+
+  mana -= beceri.mana;
+  beceriBeklemeZamanlari[beceri.id] = Date.now() + beceri.bekleme * 1000;
+  hudGuncelle();
+  sohbetMesajiEkle("[Beceri] " + beceri.ad + " kullanıldı. -" + beceri.mana + " mana.", "esya");
+
+  if (tur === "hasar") {
+    canavaraSaldir(hedef, beceriGelistirilmisHasar(beceri));
+  } else if (tur === "seri") {
+    for (let i = 0; i < beceri.vurus; i++) {
+      if (kurtlar[hedef - 1].can <= 0) break;
+      canavaraSaldir(hedef, beceriGelistirilmisHasar(beceri));
+    }
+  } else if (tur === "alan") {
+    hedefler.forEach(no => canavaraSaldir(no, beceriGelistirilmisHasar(beceri)));
+  } else if (tur === "alanSeri") {
+    for (let v = 0; v < beceri.vurus; v++) {
+      hedefler.forEach(no => {
+        if (kurtlar[no - 1].can > 0) canavaraSaldir(no, beceriGelistirilmisHasar(beceri));
+      });
+    }
+  } else if (tur === "zehir") {
+    let kalanVurus = beceri.sure;
+    const zehirZamanlayici = setInterval(function() {
+      if (kalanVurus <= 0 || olum || kurtlar[hedef - 1].can <= 0) {
+        clearInterval(zehirZamanlayici);
+        return;
+      }
+      canavaraSaldir(hedef, beceriGelistirilmisHasar(beceri));
+      kalanVurus--;
+    }, 1000);
+  } else if (tur === "saldiriBuff") {
+    beceriEtkileri.saldiriBonus = beceri.bonus + (beceriSeviyesi(beceri.id) - 1) * 5;
+    beceriEtkileri.saldiriBitis = Date.now() + beceri.sure * 1000;
+    sohbetMesajiEkle("[Beceri] Saldırı gücün " + beceri.sure + " saniye arttı.", "bilgi");
+  } else if (tur === "savasBuff") {
+    beceriEtkileri.saldiriBonus = beceri.bonus + (beceriSeviyesi(beceri.id) - 1) * 5;
+    beceriEtkileri.saldiriBitis = Date.now() + beceri.sure * 1000;
+    beceriEtkileri.savunmaBonus = beceri.savunma + (beceriSeviyesi(beceri.id) - 1) * 2;
+    beceriEtkileri.savunmaBitis = Date.now() + beceri.sure * 1000;
+  } else if (tur === "savunmaBuff") {
+    beceriEtkileri.hasarAzaltma = Math.min(
+      0.8, beceri.azaltma + (beceriSeviyesi(beceri.id) - 1) * 0.05
+    );
+    beceriEtkileri.azaltmaBitis = Date.now() + beceri.sure * 1000;
+  } else if (tur === "kritikBuff") {
+    beceriEtkileri.kritikSans = Math.min(0.8, beceri.kritik + (beceriSeviyesi(beceri.id) - 1) * 0.04);
+    beceriEtkileri.kritikBitis = Date.now() + beceri.sure * 1000;
+  } else if (tur === "gorunmez") {
+    beceriEtkileri.gorunmezBitis = Date.now() + beceri.sure * 1000;
+    document.getElementById("playerAvatar").classList.add("golgede");
+    setTimeout(function() {
+      if (Date.now() >= beceriEtkileri.gorunmezBitis) {
+        document.getElementById("playerAvatar").classList.remove("golgede");
+      }
+    }, beceri.sure * 1000);
+  } else if (tur === "iyilesme") {
+    let kalanSure = beceri.sure;
+    const iyilesmeZamanlayici = setInterval(function() {
+      if (kalanSure <= 0 || olum) {
+        clearInterval(iyilesmeZamanlayici);
+        return;
+      }
+      const oncekiCan = can;
+      can = Math.min(maksimumCan, can + beceri.iyilesme + (beceriSeviyesi(beceri.id) - 1) * 3);
+      if (can > oncekiCan) hudGuncelle();
+      kalanSure--;
+      if (kalanSure === 0) clearInterval(iyilesmeZamanlayici);
+    }, 1000);
+  }
+
+  if (document.getElementById("panelWindow").classList.contains("beceriAcik")) {
+    beceriPaneliniAc();
+  }
+}
+
+function canavaraSaldir(numara, beceriHasari = 0) {
+  const kopek = kurtlar[numara - 1];
+  if (!kopek || kopek.can <= 0 || olum) return;
+
+  const silahBilgisi = Object.values(esyaKatalogu).find(
+    item => item.id === kusanilanSilah
+  );
+  const silahBonusu = silahBilgisi ? (silahBilgisi.saldiri || 0) : 0;
+  let hasar = 25 + silahBonusu + (kusanilanSilahBasma * 5) + guc * 2 + beceriHasari + kusanilanEfsunDegeri("Saldırı Gücü");
+  if (Date.now() < beceriEtkileri.saldiriBitis) hasar += beceriEtkileri.saldiriBonus;
+  if (Math.random()*100 < kusanilanEfsunDegeri("Kritik Şansı") || (Date.now() < beceriEtkileri.kritikBitis && Math.random() < beceriEtkileri.kritikSans)) {
+    hasar *= 2;
+    sohbetMesajiEkle("[Kritik] Çifte hasar!", "esya");
+  }
+  kopek.can = Math.max(0, kopek.can - Math.floor(hasar));
+
+  const canCubugu = document.getElementById("kopekCan" + numara);
+  if (canCubugu) {
+    canCubugu.style.width = (kopek.can / kopek.maksimumCan * 100) + "%";
+  }
+
+  if (kopek.can === 0) {
+    const kopekElementi = document.getElementById("kopek" + numara);
+    if (kopekElementi) kopekElementi.style.display = "none";
+
+    // 2 saniye sonra yeniden doğ.
+    setTimeout(function() {
+      kopek.can = kopek.maksimumCan;
+      if (canCubugu) canCubugu.style.width = "100%";
+      if (kopekElementi) kopekElementi.style.display = "block";
+    }, 2000);
+
+    // Görev ve toplam av sayacı.
+    gorevCanavarOlduruldu();
+    cetinTasiDusur();
+
+    // Yang ve EXP ödülü.
+    const temelYang = Math.floor(Math.random() * 21) + 10;
+    const kazanilanYang = Math.floor(temelYang * (1 + kusanilanEfsunDegeri("Yang Kazanımı") / 100));
+    yang += kazanilanYang;
+    xp += 20;
+
+    while (xp >= gerekenXp()) {
+      xp -= gerekenXp();
+      seviyeAtla();
+    }
+
+    sohbetMesajiEkle("[Savaş] Yabani Köpek öldürüldü. +" +
+      kazanilanYang + " Yang, +20 EXP.", "bilgi");
+
+    // Yabani Köpek eşya düşürme tablosu.
+    // Her oran bağımsızdır; aynı öldürmede birden fazla eşya gelebilir.
+    canavarEsyaDusur([
+      { id: "kopek_disi", sans: 35 },
+      { id: "kopek_postu", sans: 15 },
+      { id: "kirmizi_iksir", sans: 15 },
+      { id: "mavi_iksir", sans: 10 },
+      { id: "tahta_kilic", sans: 3 },
+      { id: "deri_zirh", sans: 2 }
+    ]);
+
+    hudGuncelle();
+  }
+}
+
+// ============================================================
+// ÇETİN2 KAYIT SİSTEMİ
+// Kayıtlar bu tarayıcı/cihazdaki localStorage alanında tutulur.
+// ============================================================
+let kayitliProfilAnahtari = "";
+let kayitliProfilVar = false;
+let kayitYukleniyor = false;
+const KAYIT_ON_EKI = "cetin2_kayit_v1_";
+
+function profilAnahtari(isim) {
+  return KAYIT_ON_EKI + isim.trim().toLocaleLowerCase("tr-TR");
+}
+
+function kayitOku(isim) {
+  try {
+    const ham = localStorage.getItem(profilAnahtari(isim));
+    return ham ? JSON.parse(ham) : null;
+  } catch (hata) {
+    console.error("Kayıt okunamadı:", hata);
+    alert("Kayıt okunamadı. Tarayıcı depolama alanını kontrol et.");
+    return null;
+  }
+}
+
+function kaydetmeMesaji(metin) {
+  const alan = document.getElementById("kayitDurumu");
+  if (alan) alan.textContent = metin;
+}
+
+function oyunVerisiniTopla() {
+  const oyuncu = document.getElementById("playerAvatar");
+  return {
+    surum: 1,
+    oyuncuAdi,
+    secilenKarakter,
+    aktifHarita,
+    oyuncuKonum: oyuncu ? {
+      left: oyuncu.style.left || "50%",
+      top: oyuncu.style.top || "63%"
+    } : {left:"50%", top:"63%"},
+    toplamYabaniKopekOldurme,
+    cetinTasiAktif,
+    bekleyenCetinTasi,
+    cetinTasiCan,
+    kurtlar,
+    seviye, xp, yang,
+    guc, zeka, canlilik, ceviklik,
+    statPuan, beceriPuan, beceriSeviyeleri,
+    maksimumCan, can, maksimumMana, mana, saldiri,
+    envanter,
+    kusanilanSilah, kusanilanZirh,
+    kusanilanSilahBasma, kusanilanZirhBasma,
+    kusanilanSilahEfsunlari, kusanilanZirhEfsunlari,
+    gorevAktif, gorevOldurme, gorevOdulAlindi,
+    seciliBeceriId, beceriBeklemeZamanlari, beceriEtkileri,
+    kayitTarihi: Date.now()
+  };
+}
+
+function oyunVerisiniYukle(veri) {
+  if (!veri || typeof veri !== "object") return;
+  kayitYukleniyor = true;
+
+  const alanlar = [
+    "oyuncuAdi","secilenKarakter","aktifHarita",
+    "toplamYabaniKopekOldurme","cetinTasiAktif","bekleyenCetinTasi",
+    "cetinTasiCan","kurtlar","seviye","xp","yang","guc","zeka",
+    "canlilik","ceviklik","statPuan","beceriPuan","beceriSeviyeleri",
+    "maksimumCan","can","maksimumMana","mana","saldiri","envanter",
+    "kusanilanSilah","kusanilanZirh","kusanilanSilahBasma",
+    "kusanilanZirhBasma","kusanilanSilahEfsunlari",
+    "kusanilanZirhEfsunlari","gorevAktif","gorevOldurme",
+    "gorevOdulAlindi","seciliBeceriId","beceriBeklemeZamanlari",
+    "beceriEtkileri"
+  ];
+
+  alanlar.forEach(function(ad) {
+    if (Object.prototype.hasOwnProperty.call(veri, ad) && veri[ad] !== undefined) {
+      try { window[ad] = veri[ad]; } catch (e) {}
+    }
+  });
+
+  // let değişkenleri klasik scriptte window üzerinde bulunmayabilir;
+  // bu nedenle değerler doğrudan tek tek geri yüklenir.
+  if (veri.oyuncuAdi != null) oyuncuAdi = veri.oyuncuAdi;
+  if (veri.secilenKarakter != null) secilenKarakter = veri.secilenKarakter;
+  if (veri.aktifHarita) aktifHarita = veri.aktifHarita;
+  if (Number.isFinite(veri.toplamYabaniKopekOldurme)) toplamYabaniKopekOldurme = veri.toplamYabaniKopekOldurme;
+  if (typeof veri.cetinTasiAktif === "boolean") cetinTasiAktif = veri.cetinTasiAktif;
+  if (Number.isFinite(veri.bekleyenCetinTasi)) bekleyenCetinTasi = veri.bekleyenCetinTasi;
+  if (Number.isFinite(veri.cetinTasiCan)) cetinTasiCan = veri.cetinTasiCan;
+  if (Array.isArray(veri.kurtlar) && veri.kurtlar.length === 3) kurtlar = veri.kurtlar;
+  ["seviye","xp","yang","guc","zeka","canlilik","ceviklik","statPuan","beceriPuan",
+   "maksimumCan","can","maksimumMana","mana","saldiri","kusanilanSilahBasma",
+   "kusanilanZirhBasma","gorevOldurme"].forEach(function(ad) {
+    if (Number.isFinite(veri[ad])) window[ad] = veri[ad];
+  });
+  // Yukarıdaki window ataması desteklenmeyen tarayıcılar için temel değerleri elle ata.
+  if (Number.isFinite(veri.seviye)) seviye = veri.seviye;
+  if (Number.isFinite(veri.xp)) xp = veri.xp;
+  if (Number.isFinite(veri.yang)) yang = veri.yang;
+  if (Number.isFinite(veri.guc)) guc = veri.guc;
+  if (Number.isFinite(veri.zeka)) zeka = veri.zeka;
+  if (Number.isFinite(veri.canlilik)) canlilik = veri.canlilik;
+  if (Number.isFinite(veri.ceviklik)) ceviklik = veri.ceviklik;
+  if (Number.isFinite(veri.statPuan)) statPuan = veri.statPuan;
+  if (Number.isFinite(veri.beceriPuan)) beceriPuan = veri.beceriPuan;
+  if (Number.isFinite(veri.maksimumCan)) maksimumCan = veri.maksimumCan;
+  if (Number.isFinite(veri.can)) can = veri.can;
+  if (Number.isFinite(veri.maksimumMana)) maksimumMana = veri.maksimumMana;
+  if (Number.isFinite(veri.mana)) mana = veri.mana;
+  if (Number.isFinite(veri.saldiri)) saldiri = veri.saldiri;
+  if (Array.isArray(veri.envanter)) envanter = veri.envanter;
+  if (veri.kusanilanSilah !== undefined) kusanilanSilah = veri.kusanilanSilah;
+  if (veri.kusanilanZirh !== undefined) kusanilanZirh = veri.kusanilanZirh;
+  if (Number.isFinite(veri.kusanilanSilahBasma)) kusanilanSilahBasma = veri.kusanilanSilahBasma;
+  if (Number.isFinite(veri.kusanilanZirhBasma)) kusanilanZirhBasma = veri.kusanilanZirhBasma;
+  if (Array.isArray(veri.kusanilanSilahEfsunlari)) kusanilanSilahEfsunlari = veri.kusanilanSilahEfsunlari;
+  if (Array.isArray(veri.kusanilanZirhEfsunlari)) kusanilanZirhEfsunlari = veri.kusanilanZirhEfsunlari;
+  if (typeof veri.gorevAktif === "boolean") gorevAktif = veri.gorevAktif;
+  if (Number.isFinite(veri.gorevOldurme)) gorevOldurme = veri.gorevOldurme;
+  if (typeof veri.gorevOdulAlindi === "boolean") gorevOdulAlindi = veri.gorevOdulAlindi;
+  if (veri.beceriSeviyeleri && typeof veri.beceriSeviyeleri === "object") beceriSeviyeleri = veri.beceriSeviyeleri;
+  if (veri.seciliBeceriId !== undefined) seciliBeceriId = veri.seciliBeceriId;
+  if (veri.beceriBeklemeZamanlari && typeof veri.beceriBeklemeZamanlari === "object") beceriBeklemeZamanlari = veri.beceriBeklemeZamanlari;
+  if (veri.beceriEtkileri && typeof veri.beceriEtkileri === "object") beceriEtkileri = veri.beceriEtkileri;
+
+  olum = false;
+  kayitYukleniyor = false;
+}
+
+function oyunuKaydet() {
+  if (kayitYukleniyor || !kayitliProfilAnahtari || !kayitliProfilVar) return;
+
+  try {
+    const oncekiKayit = JSON.parse(
+      localStorage.getItem(kayitliProfilAnahtari) || "{}"
+    );
+
+    const yeniVeri = oyunVerisiniTopla();
+
+    // Kullanıcı hesabı bilgilerini koru
+    yeniVeri.parola = oncekiKayit.parola || "";
+    yeniVeri.eposta = oncekiKayit.eposta || "";
+
+    localStorage.setItem(
+      kayitliProfilAnahtari,
+      JSON.stringify(yeniVeri)
+    );
+
+    kaydetmeMesaji("Oyun otomatik kaydedildi.");
+  } catch (hata) {
+    console.error("Oyun kaydedilemedi:", hata);
+    kaydetmeMesaji("Kayıt başarısız!");
+  }
+}
+function kayitliOyunaDon(veri) {
+  oyunMuziginiBaslat();
+  document.getElementById("girisEkrani").style.display = "none";
+  document.getElementById("karakterEkrani").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  karakterSec(secilenKarakter);
+
+  if (veri.aktifHarita) haritaDegistir(veri.aktifHarita);
+  const oyuncu = document.getElementById("playerAvatar");
+  if (oyuncu && veri.oyuncuKonum) {
+    oyuncu.style.left = veri.oyuncuKonum.left || "50%";
+    oyuncu.style.top = veri.oyuncuKonum.top || "63%";
+  }
+
+  if (cetinTasiAktif) document.getElementById("cetinTasi").style.display =
+    aktifHarita === "canavar" ? "block" : "none";
+  hudGuncelle();
+  hudIksirGuncelle();
+  beceriButonunuGuncelle();
+  beceriKisayollariniGuncelle();
+  kayitliProfilAnahtari = profilAnahtari(oyuncuAdi);
+  kayitliProfilVar = true;
+  kaydetmeMesaji("Kayıtlı karakter yüklendi.");
+}
+
+// Sayfa kapanırken ve sekme arka plana geçerken son durum kaydedilir.
+window.addEventListener("beforeunload", oyunuKaydet);
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === "hidden") oyunuKaydet();
+});
+
+hudGuncelle();
+  hudIksirGuncelle();
+  setInterval(kopekSaldirilariniKontrolEt, 250);
+  setInterval(oyunuKaydet, 3000);
+</script>
+</body>
+</html>
