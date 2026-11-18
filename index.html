@@ -236,6 +236,54 @@ const CETIN2_SUNUCU = "wss://etin2-server.onrender.com";
 
 let cetin2Baglanti = null;
 let cetin2Bagli = false;
+	function cetin2OyuncuGoster(oyuncu) {
+if (
+  !oyuncu ||
+  !oyuncu.id ||
+  oyuncu.id === cetin2OyuncuId
+) return;
+
+  const katman = document.getElementById("multiplayerLayer");
+  if (!katman) return;
+
+  let gorunum = cetin2DigerOyuncular.get(oyuncu.id);
+
+  if (!gorunum) {
+    const resim = document.createElement("img");
+    resim.className = "multiplayerOyuncu";
+
+    const isim = document.createElement("div");
+    isim.className = "multiplayerOyuncuAdi";
+
+    katman.appendChild(resim);
+    katman.appendChild(isim);
+
+    gorunum = { resim, isim };
+    cetin2DigerOyuncular.set(oyuncu.id, gorunum);
+  }
+
+  const karakterGorselleri = {
+    "Savaşçı": "savasci.png",
+    "Sura": "sura.png",
+    "Şaman": "saman.png",
+    "Ninja": "ninja.png"
+  };
+
+  gorunum.resim.src =
+    karakterGorselleri[oyuncu.karakter] || "sura.png";
+
+  gorunum.resim.alt = oyuncu.karakter || "Oyuncu";
+  gorunum.isim.textContent = oyuncu.ad || "Gezgin";
+
+  const x = Number(oyuncu.x) || 50;
+  const y = Number(oyuncu.y) || 63;
+
+  gorunum.resim.style.left = x + "%";
+  gorunum.resim.style.top = y + "%";
+
+  gorunum.isim.style.left = x + "%";
+  gorunum.isim.style.top = (y - 12) + "%";
+	}
 
 function cetin2SunucuyaBaglan() {
   if (
